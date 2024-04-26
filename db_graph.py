@@ -4,28 +4,45 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 
-#class db_graph():
+# DIRECCION DE ARCHIVOS ADICIONALES
+key = "Proyecto_calcgrf/resources/graphic-calculator-db-firebase-adminsdk-i358v-e3aad94d63.json"
+url = 'https://graphic-calculator-db-default-rtdb.firebaseio.com/'
 
-
-def db_init():
-
-    # Cargo el certificado de mi proyecto
-    firebase_sdk = credentials.Certificate("graphic-calculator-db-firebase-adminsdk-i358v-e3aad94d63.json")
-
+def db_init():  # FUNCION DE INICIO DE LA DB
+    # CARGO EL CERTIFICADO .JSON DE LA BD
+    firebase_sdk = credentials.Certificate(key)
     # Hacemos referencia a la base de datos en tiempo real de firebase
-    firebase_admin.initialize_app(firebase_sdk, {'databaseURL':'https://graphic-calculator-db-default-rtdb.firebaseio.com/'})
+    firebase_admin.initialize_app(firebase_sdk, {'databaseURL': url})
+    
+def user_creator(email,password): # FUNCION CREATE DE LA DB
+    user = email.split('@')
+    dir = "/"+user[0]  # CREAMOS UNA NUEVA COLECCION EN LA DB PARA EL NUEVO USUARIO
+    ref = db.reference(dir) # ESPECIFICAMOS EN QUE DIRECCION VAMOS A ESCRIBIR
+    ref.set({'user':email,'password':password,'historial': None}) # SUBIMOS LOS DATOS A LA BD
+    return True
 
-    # Creo una coleccion con el nombre de productos con un producto
+def user_check(email,password): # FUNCION READ DE LA DB
+    ref = db.reference('/') # ESPECIFICAMOS EN QUE DIRECCION VAMOS A POSICIONARNOS
+    data = ref.get() # OBTENERMOS LA INFORMACION DE LA DIRECCION SELECCIONADA
+    user = email.split('@') # OBTENEMOS EL USUARIO DEL EMAIL INGRESADO
+    for usuario in data:    # ITERAMOS EN EL DICCIONARIO OBTENIDO EN DATA PARA BUSCAR SI EXISTE EL USUARIO
+        if usuario==user[0]:    # SI EL USUARIO EXISTE ENTONCES:
+            if data[usuario]["user"]==email and data[usuario]["password"]==password: # CONFIRMAMOS LOS DATOS INGRESADOS
+                return True # RETORNAMOS TRUE PARA CONFIRMAR EXITO EN EL INGRESO
+            else:
+                return False # RETORNAMOS FALSE PARA AVISAR DEL ERROR DE INGRESO
 
+def user_edit(user, data):  # FUNCION UPDATE DE LA DB
     # Modificar un dato
     #self.ref = db.reference('Productos')
     #self.producto_ref = self.ref.child('-NtPAfD711oGpLZ68YLe')
     #self.producto_ref.update({'pulgadas':'10'})
-    
-def user_creator(data):
-    ref = db.reference('/sacamo')
-    ref.set({'user':'sacamo@unal.edu.co','password':'10212420','historial': data}) # Se sube a la base de datos
+    pass
 
+def user_delete(user, data):  # FUNCION DELETE DE LA DB
+    pass
+
+def json_generator(data):
     # generamos un archivo
     archivo = 'file.json'
 
