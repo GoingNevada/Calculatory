@@ -3,12 +3,10 @@
 # IMPORTACION DE MODULOS 
 import tkinter as tk
 from tkinter import ttk, messagebox, OptionMenu, Label, StringVar, Entry, Button, Spinbox, IntVar, Tk
-from matplotlib import backend_bases
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 from PIL import Image, ImageTk
 import numpy as np
-import sympy as sp
 from calculadora import *
 from db_graph import *
 
@@ -34,17 +32,26 @@ teclas_aux = [['arc',   'hyp'    , '!'  ,    '%'      ],
               ['sec','sec\u207b¹','sech','sech\u207b¹'],
               ['cot','cot\u207b¹','coth','coth\u207b¹']]
 
-teclas = [['\u21C4','x','y','C','\u232B'],
-           ['sin','cos','tan','ans','÷'],
-           ['x\u207F','(',')','|x|','*'],
-           ['e','7','8','9','-'],
+teclas = [ ['\u21C4','x','y','C','\u232B'],
+           [ 'sin', 'cos','tan','ans','÷'],
+           ['x\u207F', '(', ')','|x|','*'],
+           [ 'e' , '7' , '8' , '9' , '-' ],
            ['\u207F\u221Ax','4','5','6','+'],
-           ['log','1','2','3','\u21B5'],
-           ['ln','\u03C0','0','.','_']]
+           [ 'log', '1', '2','3','\u21B5'],
+           ['ln' ,'\u03C0' ,'0' ,'.' ,'_']]
 
 historial = []
 
+
+##### IMPORTANTE!!!!!!
+
+"""
+CREAR UNA FUNCION QUE ESTE REVISANDO SI EXISTE ALGUN SIGNO ANTERIOR A LO QUE SE VA A PONER, PARA REVISAR LA SINTAXIS DE
+LO QUE SE ESTA ESCRIBIENDO, ANTES DE ENVIARLO AL ANALIZADOR MATEMATICO
+"""
+
 class Calculadora(tk.Tk):
+    i = 0
     def __init__(self): # CONSTRUCTOR DE LA CLASE
         super().__init__()  # FUNCION DE CLASE PARA EJECUTAR METODOS HIJOS
         self.title("Calculadora")   # NOMBRE DE LA APLICACION
@@ -61,14 +68,14 @@ class Calculadora(tk.Tk):
         self.filemenu.add_command(label="Nuevo")
         self.filemenu.add_command(label="Abrir")
         self.filemenu.add_command(label="Guardar", command= self.guardar)
+        self.filemenu.add_command(label="Sincronizar en DB")
         self.filemenu.add_command(label="Cerrar")
         self.filemenu.add_separator()
         self.filemenu.add_command(label="Salir", command=self.quit)
 
         self.editmenu = tk.Menu(self.menubar, tearoff=0)
-        self.editmenu.add_command(label="Cortar")
-        self.editmenu.add_command(label="Copiar")
-        self.editmenu.add_command(label="Pegar")
+        self.editmenu.add_command(label="Configuración de graficos")
+        self.editmenu.add_command(label="Configuración de calculo")
 
         self.helpmenu = tk.Menu(self.menubar, tearoff=0)
         self.helpmenu.add_command(label="Ayuda")
@@ -76,7 +83,7 @@ class Calculadora(tk.Tk):
         self.helpmenu.add_command(label="Acerca de...")
 
         self.menubar.add_cascade(label="Archivo", menu=self.filemenu)
-        self.menubar.add_cascade(label="Editar", menu=self.editmenu)
+        self.menubar.add_cascade(label="Opciones", menu=self.editmenu)
         self.menubar.add_cascade(label="Ayuda", menu=self.helpmenu)
         
         #------------CONFIGURACION DE LA DISTRIBUCION DE LA VENTANA-------------#
@@ -99,7 +106,7 @@ class Calculadora(tk.Tk):
         self.rowconfigure(8, weight=1)
 
         #----------Etiqueta y entrada para la ecuación-------------#
-        self.entrada_ecuacion = ttk.Entry(self, font=('Arial', 18))
+        self.entrada_ecuacion = ttk.Combobox(self, font=('Arial', 18))
         self.entrada_ecuacion.grid(row=0, column=0, sticky="nsew", columnspan=5, padx=5, pady=5)
 
         #-------------BLOQUE DE SALIDA DE RESULTADOS--------------#
@@ -249,7 +256,7 @@ class Calculadora(tk.Tk):
         self.boton_3.grid(row=7, column=3, sticky="nsew", padx=2, pady=2)
         
         # Botón de enter
-        self.boton_enter = ttk.Button(self, text=teclas[5][4], width=5, style="enter_button.TButton", command=self.solve)
+        self.boton_enter = ttk.Button(self, text=teclas[5][4], width=5, style="enter_button.TButton", command=self.result)
         self.boton_enter.grid(row=7, column=4, sticky="nsew", rowspan=2, padx=2, pady=2)
         
         # Botón de ln
@@ -363,50 +370,43 @@ class Calculadora(tk.Tk):
             self.btns_state[0]=False
             self.btns_state[1]=False
 
-    def is_int(self,n):  # Funcion de comprobacion de numero entero positivo
-        try:            # Uitlizamos un try - catch para realizar la comporbacion
-            int(n)
-            return True     # Si cumple las condiciones, se retorna True
-        except Exception:
-            return False        # Si no, envia un False
-
-
     def ing_teclado(self, tecla):
         ind = len(self.entrada_ecuacion.get())
         self.entrada_ecuacion.insert(ind, tecla)
 
-    def solve(self):
-        resultado = resolver(self.entrada_ecuacion.get().strip())
-        if self.is_int(resultado):
+    def result(self):
+        res = cal.calculate(self.entrada_ecuacion.get().strip())
+        historial.append(self.entrada_ecuacion.get())
+        self.obtener_info()
+        if type(res) != np.ndarray:
             self.graficacion.destroy()
-            self.resultado = ttk.Label(self, textvariable=self.ecuacion, font=('Arial', 18), justify='right')
+            self.resultado = ttk.Label(self, textvariable=self.ecuacion, font=('Arial', 18), justify='left')
             self.resultado.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=5, pady=[0,5])
-            self.ecuacion.set(resultado)
+            self.ecuacion.set(res)
         else:
-            self.graficacion = tk.Canvas(self, width=50, height=50)
-            self.graficacion.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=5, pady=5)
-            self.figura = Figure(figsize=(4, 3), dpi=100)   # SE AGREGA FIGURA A LA VENTANA
-            self.ax = self.figura.add_subplot(111)  # SE CREA EL LUGAR DE LA FIGURA
-            #self.ax.spines['left'].set_position('center')
-            #self.ax.spines['bottom'].set_position('center')
-            self.ax.grid(True)
-            self.ax.set_xlim([-5, 5])
-            #self.ax.set_xticks(range(-5, 5))
-            self.ax.set_ylim([-5, 5])
-            #self.ax.set_yticks(range(-5, 5))
-
+            #-------------CONSTRUCCION DEL ESPACIO DE GRAFICACION-----------------------#
+            self.resultado.destroy()    # DESTRUIMOS EL LABEL DE RESULTADOS
+            self.graficacion = tk.Canvas(self, width=50, height=50) # CONTRUIMOS EL ESPACIO PARA LA FIGURA A GENERAR
+            self.graficacion.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=5, pady=5) # SE UBICA DENTRO DE LA VENTANA
+            self.figura = Figure(figsize=(4, 3), dpi=100)   # SE AGREGA FIGURA AL CANVAS GENERADO
+            self.ax = self.figura.add_subplot(111)  # SE CONFIGURA LA DISPOSICION DE LA FIGURA DENTRO DEL CANVAS
             self.canvas = FigureCanvasTkAgg(self.figura, master=self.graficacion)   
-            self.canvas.draw()  # DIBUJADO INICIAL
             self.canvas.get_tk_widget().pack(side=tk.TOP, expand=1, fill=tk.BOTH)   # SE UBICA EN LA VENTANA
-            self.tlb = NavigationToolbar2Tk(self.canvas, self.graficacion)
-            self.tlb.update()
-            self.canvas.get_tk_widget().pack(side=tk.TOP, expand=1, fill=tk.BOTH)   # SE UBICA EN LA VENTANA"""
-            x_values = np.linspace(-20, 20, 1000)
-            self.ax.clear()
-            self.ax.plot(x_values, resultado)
-            #self.ax.grid(True)
+            self.tlb = NavigationToolbar2Tk(self.canvas, self.graficacion)  # AGREGAMOS LAS OPCIONES DE FIGURA DENTRO DEL CANVAS
+            self.tlb.update()   # ACTUALIZAMOS LAS CONFIGURACIONES REALIZADAS
+
+            #--------------DUBUJADO DE LA FIGURA GENERADA-------------------------------#
+            x_values = np.linspace(-100, 100, 1000) # GENERAMOS LA LISTA DE LOS PUNTOS EN X PARA F(X)
+            self.ax.plot(x_values, res) # DIBUJAMOS LA FIGURA
+            self.ax.grid(True)  # SE ACTIVA LA GRILLA
             self.ax.axhline(0, color='black', lw=0.5)
             self.ax.axvline(0, color='black', lw=0.5)
+            #self.ax.spines['left'].set_position('center')
+            #self.ax.spines['bottom'].set_position('center')
+            self.ax.set_xlim([-10, 10])
+            self.ax.set_xticks(range(-10, 11, 2))
+            self.ax.set_ylim([-5, 5])
+            self.ax.set_yticks(range(-6, 7, 2))
             self.canvas.draw()
 
     def ans(self):
@@ -416,7 +416,6 @@ class Calculadora(tk.Tk):
     def limpiar(self):
         self.entrada_ecuacion.delete(0, tk.END)
         self.ecuacion.set('')
-        #self.ax.clear()
         self.graficacion.destroy()
         self.resultado = ttk.Label(self, textvariable=self.ecuacion, font=('Arial', 18), justify='right')
         self.resultado.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=5, pady=[0,5])
@@ -429,9 +428,17 @@ class Calculadora(tk.Tk):
     def guardar(self):
         user_edit("sacamo@unal.edu.co", historial)
 
+    def obtener_info(self):
+        print(historial)
+        if len(historial)<=5:
+            self.entrada_ecuacion.configure(values=historial)
+        else:
+            self.i+=1
+            self.entrada_ecuacion.configure(values=historial[0+self.i:])
+
 class Login(tk.Tk):
     def __init__(self):
-        super().__init__()
+        super().__init__()  # LA FUNCION SUPER() SIRVE PARA UTILIZAR METODOS DE LA CLASE PADRE, EN ESTE CASO DE LA CLASE Tk 
 
         # CONFIGURACION DE LA VENTANA Y SU ESTRUCTURA
         self.title('Calculadora (Login)')
