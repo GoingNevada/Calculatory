@@ -140,139 +140,139 @@ class Calculadora(tk.Tk):
         pulse_button.map('pulse_button.TButton', background=[('active', '#990000')])
 
         # Boton de cambio
-        self.boton_change = ttk.Button(self, text=teclas[0][0], width=5, style="control.TButton", command=self.aux_button)
+        self.boton_change = ttk.Button(self, text=teclas[0][0], width=6, style="control.TButton", command=self.aux_button)
         self.boton_change.grid(row=2, column=0, sticky="nsew", padx=2, pady=2)
 
         # Botón de x
-        self.boton_x = ttk.Button(self, text=teclas[0][1], width=5, style="control.TButton", command=lambda: self.ing_teclado('x'))
+        self.boton_x = ttk.Button(self, text=teclas[0][1], width=6, style="control.TButton", command=lambda: self.ing_teclado('x'))
         self.boton_x.grid(row=2, column=1, sticky="nsew", padx=2, pady=2)
         
         # Botón de y
-        self.boton_y = ttk.Button(self, text=teclas[0][2], width=5, style="control.TButton", command=lambda: self.ing_teclado('y'))
+        self.boton_y = ttk.Button(self, text=teclas[0][2], width=6, style="control.TButton", command=lambda: self.ing_teclado('y'))
         self.boton_y.grid(row=2, column=2, sticky="nsew", padx=2, pady=2)
         
         # Botón de C
-        self.boton_c = ttk.Button(self, text=teclas[0][3], width=5, style="del_button.TButton", command=self.limpiar)
+        self.boton_c = ttk.Button(self, text=teclas[0][3], width=6, style="del_button.TButton", command=self.limpiar)
         self.boton_c.grid(row=2, column=3, sticky="nsew", padx=2, pady=2)
         
         # Botón de borrar
-        self.boton_limpiar = ttk.Button(self, text=teclas[0][4], width=5, style="del_button.TButton", command=self.borrar)
+        self.boton_limpiar = ttk.Button(self, text=teclas[0][4], width=6, style="del_button.TButton", command=self.borrar)
         self.boton_limpiar.grid(row=2, column=4, sticky="nsew", padx=2, pady=2)
 
         # Botón de sin
-        self.boton_sin = ttk.Button(self, text=teclas[1][0], width=5, style="control.TButton", command=lambda: self.ing_teclado('sin('))
+        self.boton_sin = ttk.Button(self, text=teclas[1][0], width=6, style="control.TButton", command=lambda: self.ing_teclado('sin('))
         self.boton_sin.grid(row=3, column=0, sticky="nsew", padx=2, pady=2)
         
         # Botón de cos
-        self.boton_cos = ttk.Button(self, text=teclas[1][1], width=5, style="control.TButton", command=lambda: self.ing_teclado('cos('))
+        self.boton_cos = ttk.Button(self, text=teclas[1][1], width=6, style="control.TButton", command=lambda: self.ing_teclado('cos('))
         self.boton_cos.grid(row=3, column=1, sticky="nsew", padx=2, pady=2)
         
         # Botón de tan
-        self.boton_tan = ttk.Button(self, text=teclas[1][2], width=5, style="control.TButton", command=lambda: self.ing_teclado('tan('))
+        self.boton_tan = ttk.Button(self, text=teclas[1][2], width=6, style="control.TButton", command=lambda: self.ing_teclado('tan('))
         self.boton_tan.grid(row=3, column=2, sticky="nsew", padx=2, pady=2)
         
         # Botón de ans
-        self.boton_ans = ttk.Button(self, text=teclas[1][3], width=5, style="oper_button.TButton", command=self.ans)
+        self.boton_ans = ttk.Button(self, text=teclas[1][3], width=6, style="oper_button.TButton", command=self.ans)
         self.boton_ans.grid(row=3, column=3, sticky="nsew", padx=2, pady=2)
         
         # Botón de /
-        self.boton_division = ttk.Button(self, text=teclas[1][4], width=5, style="oper_button.TButton", command=lambda: self.ing_teclado('/'))
+        self.boton_division = ttk.Button(self, text=teclas[1][4], width=6, style="oper_button.TButton", command=lambda: self.ing_teclado('/'))
         self.boton_division.grid(row=3, column=4, sticky="nsew", padx=2, pady=2)
 
         # Botón de x^n
-        self.boton_potencia = ttk.Button(self, text=teclas[2][0], width=5, style="control.TButton", command=lambda: self.ing_teclado('^'))
+        self.boton_potencia = ttk.Button(self, text=teclas[2][0], width=6, style="control.TButton", command=lambda: self.ing_teclado('^'))
         self.boton_potencia.grid(row=4, column=0, sticky="nsew", padx=2, pady=2)
         
         # Botón de (
-        self.boton_apare = ttk.Button(self, text=teclas[2][1], width=5, style="control.TButton", command=lambda: self.ing_teclado('('))
+        self.boton_apare = ttk.Button(self, text=teclas[2][1], width=6, style="control.TButton", command=lambda: self.ing_teclado('('))
         self.boton_apare.grid(row=4, column=1, sticky="nsew", padx=2, pady=2)
             
         # Botón de )
-        self.boton_cpare = ttk.Button(self, text=teclas[2][2], width=5, style="control.TButton", command=lambda: self.ing_teclado(')'))
+        self.boton_cpare = ttk.Button(self, text=teclas[2][2], width=6, style="control.TButton", command=lambda: self.ing_teclado(')'))
         self.boton_cpare.grid(row=4, column=2, sticky="nsew", padx=2, pady=2)
         
         # Botón de |x|
-        self.boton_abs = ttk.Button(self, text=teclas[2][3], width=5, style="control.TButton", command=lambda: self.ing_teclado('abs('))
+        self.boton_abs = ttk.Button(self, text=teclas[2][3], width=6, style="control.TButton", command=lambda: self.ing_teclado('abs('))
         self.boton_abs.grid(row=4, column=3, sticky="nsew", padx=2, pady=2)
         
         # Botón de *
-        self.boton_multi = ttk.Button(self, text=teclas[2][4], width=5, style="oper_button.TButton", command=lambda: self.ing_teclado('*'))
+        self.boton_multi = ttk.Button(self, text=teclas[2][4], width=6, style="oper_button.TButton", command=lambda: self.ing_teclado('*'))
         self.boton_multi.grid(row=4, column=4, sticky="nsew", padx=2, pady=2)
         
         # Botón de e
-        self.boton_e = ttk.Button(self, text=teclas[3][0], width=5, style="control.TButton", command=lambda: self.ing_teclado('e'))
+        self.boton_e = ttk.Button(self, text=teclas[3][0], width=6, style="control.TButton", command=lambda: self.ing_teclado('e'))
         self.boton_e.grid(row=5, column=0, sticky="nsew", padx=2, pady=2)
         
         # Botón de 7
-        self.boton_7 = ttk.Button(self, text=teclas[3][1], width=5, style="control.TButton", command=lambda: self.ing_teclado('7'))
+        self.boton_7 = ttk.Button(self, text=teclas[3][1], width=6, style="control.TButton", command=lambda: self.ing_teclado('7'))
         self.boton_7.grid(row=5, column=1, sticky="nsew", padx=2, pady=2)
         
         # Botón de 8
-        self.boton_8 = ttk.Button(self, text=teclas[3][2], width=5, style="control.TButton", command=lambda: self.ing_teclado('8'))
+        self.boton_8 = ttk.Button(self, text=teclas[3][2], width=6, style="control.TButton", command=lambda: self.ing_teclado('8'))
         self.boton_8.grid(row=5, column=2, sticky="nsew", padx=2, pady=2)
         
         # Botón de 9
-        self.boton_9 = ttk.Button(self, text=teclas[3][3], width=5, style="control.TButton", command=lambda: self.ing_teclado('9'))
+        self.boton_9 = ttk.Button(self, text=teclas[3][3], width=6, style="control.TButton", command=lambda: self.ing_teclado('9'))
         self.boton_9.grid(row=5, column=3, sticky="nsew", padx=2, pady=2)
         
         # Botón de -
-        self.boton_resta = ttk.Button(self, text=teclas[3][4], width=5, style="oper_button.TButton", command=lambda: self.ing_teclado('-'))
+        self.boton_resta = ttk.Button(self, text=teclas[3][4], width=6, style="oper_button.TButton", command=lambda: self.ing_teclado('-'))
         self.boton_resta.grid(row=5, column=4, sticky="nsew", padx=2, pady=2)
         
         # Botón de root
-        self.boton_root = ttk.Button(self, text=teclas[4][0], width=5, style="control.TButton")
+        self.boton_root = ttk.Button(self, text=teclas[4][0], width=6, style="control.TButton", command=lambda: self.ing_teclado('root(x,i)'))
         self.boton_root.grid(row=6, column=0, sticky="nsew", padx=2, pady=2)
         
         # Botón de 4
-        self.boton_4 = ttk.Button(self, text=teclas[4][1], width=5, style="control.TButton", command=lambda: self.ing_teclado('4'))
+        self.boton_4 = ttk.Button(self, text=teclas[4][1], width=6, style="control.TButton", command=lambda: self.ing_teclado('4'))
         self.boton_4.grid(row=6, column=1, sticky="nsew", padx=2, pady=2)
         
         # Botón de 5
-        self.boton_5 = ttk.Button(self, text=teclas[4][2], width=5, style="control.TButton", command=lambda: self.ing_teclado('5'))
+        self.boton_5 = ttk.Button(self, text=teclas[4][2], width=6, style="control.TButton", command=lambda: self.ing_teclado('5'))
         self.boton_5.grid(row=6, column=2, sticky="nsew", padx=2, pady=2)
         
         # Botón de 6
-        self.boton_6 = ttk.Button(self, text=teclas[4][3], width=5, style="control.TButton", command=lambda: self.ing_teclado('6'))
+        self.boton_6 = ttk.Button(self, text=teclas[4][3], width=6, style="control.TButton", command=lambda: self.ing_teclado('6'))
         self.boton_6.grid(row=6, column=3, sticky="nsew", padx=2, pady=2)
         
         # Botón de +
-        self.boton_suma = ttk.Button(self, text=teclas[4][4], width=5, style="oper_button.TButton", command=lambda: self.ing_teclado('+'))
+        self.boton_suma = ttk.Button(self, text=teclas[4][4], width=6, style="oper_button.TButton", command=lambda: self.ing_teclado('+'))
         self.boton_suma.grid(row=6, column=4, sticky="nsew", padx=2, pady=2)
         
         # Botón de log
-        self.boton_log = ttk.Button(self, text=teclas[5][0], width=5, style="control.TButton", command=lambda: self.ing_teclado('log(b,x)'))
+        self.boton_log = ttk.Button(self, text=teclas[5][0], width=6, style="control.TButton", command=lambda: self.ing_teclado('log(x,b)'))
         self.boton_log.grid(row=7, column=0, sticky="nsew", padx=2, pady=2)
         
         # Botón de 1
-        self.boton_1 = ttk.Button(self, text=teclas[5][1], width=5, style="control.TButton", command=lambda: self.ing_teclado('1'))
+        self.boton_1 = ttk.Button(self, text=teclas[5][1], width=6, style="control.TButton", command=lambda: self.ing_teclado('1'))
         self.boton_1.grid(row=7, column=1, sticky="nsew", padx=2, pady=2)
         
         # Botón de 2
-        self.boton_2 = ttk.Button(self, text=teclas[5][2], width=5, style="control.TButton", command=lambda: self.ing_teclado('2'))
+        self.boton_2 = ttk.Button(self, text=teclas[5][2], width=6, style="control.TButton", command=lambda: self.ing_teclado('2'))
         self.boton_2.grid(row=7, column=2, sticky="nsew", padx=2, pady=2)
         
         # Botón de 3
-        self.boton_3 = ttk.Button(self, text=teclas[5][3], width=5, style="control.TButton", command=lambda: self.ing_teclado('3'))
+        self.boton_3 = ttk.Button(self, text=teclas[5][3], width=6, style="control.TButton", command=lambda: self.ing_teclado('3'))
         self.boton_3.grid(row=7, column=3, sticky="nsew", padx=2, pady=2)
         
         # Botón de enter
-        self.boton_enter = ttk.Button(self, text=teclas[5][4], width=5, style="enter_button.TButton", command=self.result)
+        self.boton_enter = ttk.Button(self, text=teclas[5][4], width=6, style="enter_button.TButton", command=self.result)
         self.boton_enter.grid(row=7, column=4, sticky="nsew", rowspan=2, padx=2, pady=2)
         
         # Botón de ln
-        self.boton_ln = ttk.Button(self, text=teclas[6][0], width=5, style="control.TButton", command=lambda: self.ing_teclado('ln('))
+        self.boton_ln = ttk.Button(self, text=teclas[6][0], width=6, style="control.TButton", command=lambda: self.ing_teclado('ln('))
         self.boton_ln.grid(row=8, column=0, sticky="nsew", padx=2, pady=2)
 
         # Botón de pi
-        self.boton_pi = ttk.Button(self, text=teclas[6][1], width=5, style="control.TButton", command=lambda: self.ing_teclado('\u03C0'))
+        self.boton_pi = ttk.Button(self, text=teclas[6][1], width=6, style="control.TButton", command=lambda: self.ing_teclado('\u03C0'))
         self.boton_pi.grid(row=8, column=1, sticky="nsew", padx=2, pady=2)
         
         # Botón de 0
-        self.boton_0 = ttk.Button(self, text=teclas[6][2], width=5, style="control.TButton", command=lambda: self.ing_teclado('0'))
+        self.boton_0 = ttk.Button(self, text=teclas[6][2], width=6, style="control.TButton", command=lambda: self.ing_teclado('0'))
         self.boton_0.grid(row=8, column=2, sticky="nsew", padx=2, pady=2)
         
         # Botón de .
-        self.boton_negativo = ttk.Button(self, text=teclas[6][3], width=5, style="control.TButton", command=lambda: self.ing_teclado('.'))
+        self.boton_negativo = ttk.Button(self, text=teclas[6][3], width=6, style="control.TButton", command=lambda: self.ing_teclado('.'))
         self.boton_negativo.grid(row=8, column=3, sticky="nsew", padx=2, pady=2)
 
         self.btns_state = [False,False]  # ESTADO DEL BOTON ASOCIADO A CAMBIO
@@ -331,16 +331,16 @@ class Calculadora(tk.Tk):
         if self.estado_aux == True:
             self.boton_change.configure(style="pulse_button.TButton")
             # ---------BOTONES AUXILIARES----------------------#
-            self.boton_nsin = ttk.Button(self,text=teclas_aux[1][0], width=5, style="control.TButton", command=lambda: self.ing_teclado('sin('))
-            self.boton_ncos = ttk.Button(self,text=teclas_aux[2][0], width=5, style="control.TButton", command=lambda: self.ing_teclado('cos('))
-            self.boton_ntan = ttk.Button(self,text=teclas_aux[3][0], width=5, style="control.TButton", command=lambda: self.ing_teclado('tan('))
-            self.boton_csc =  ttk.Button(self,text=teclas_aux[4][0], width=5, style="control.TButton", command=lambda: self.ing_teclado('csc('))
-            self.boton_sec =  ttk.Button(self,text=teclas_aux[5][0], width=5, style="control.TButton", command=lambda: self.ing_teclado('sec('))
-            self.boton_cot =  ttk.Button(self,text=teclas_aux[6][0], width=5, style="control.TButton", command=lambda: self.ing_teclado('cot('))
-            self.boton_arc =  ttk.Button(self,text=teclas_aux[0][0], width=5, style="control.TButton", command=lambda: self.chg_state(0))
-            self.boton_hyp =  ttk.Button(self,text=teclas_aux[0][1], width=5, style="control.TButton", command=lambda: self.chg_state(1))
-            self.boton_fac =  ttk.Button(self,text=teclas_aux[0][2], width=5, style="control.TButton", command=lambda: self.ing_teclado('!'))
-            self.boton_porc = ttk.Button(self,text=teclas_aux[0][3], width=5, style="control.TButton", command=lambda: self.ing_teclado('%'))
+            self.boton_ncos = ttk.Button(self,text=teclas_aux[2][0], width=6, style="control.TButton", command=lambda: self.ing_teclado('cos('))
+            self.boton_nsin = ttk.Button(self,text=teclas_aux[1][0], width=6, style="control.TButton", command=lambda: self.ing_teclado('sin('))
+            self.boton_ntan = ttk.Button(self,text=teclas_aux[3][0], width=6, style="control.TButton", command=lambda: self.ing_teclado('tan('))
+            self.boton_csc =  ttk.Button(self,text=teclas_aux[4][0], width=6, style="control.TButton", command=lambda: self.ing_teclado('csc('))
+            self.boton_sec =  ttk.Button(self,text=teclas_aux[5][0], width=6, style="control.TButton", command=lambda: self.ing_teclado('sec('))
+            self.boton_cot =  ttk.Button(self,text=teclas_aux[6][0], width=6, style="control.TButton", command=lambda: self.ing_teclado('cot('))
+            self.boton_arc =  ttk.Button(self,text=teclas_aux[0][0], width=6, style="control.TButton", command=lambda: self.chg_state(0))
+            self.boton_hyp =  ttk.Button(self,text=teclas_aux[0][1], width=6, style="control.TButton", command=lambda: self.chg_state(1))
+            self.boton_fac =  ttk.Button(self,text=teclas_aux[0][2], width=6, style="control.TButton", command=lambda: self.ing_teclado('!'))
+            self.boton_porc = ttk.Button(self,text=teclas_aux[0][3], width=6, style="control.TButton", command=lambda: self.ing_teclado('%'))
             self.boton_arc.configure(style="control.TButton")
             self.boton_hyp.configure(style="control.TButton")
             self.boton_nsin.grid(row=3, column=0, sticky="nsew", padx=2, pady=2)
@@ -370,9 +370,10 @@ class Calculadora(tk.Tk):
             self.btns_state[0]=False
             self.btns_state[1]=False
 
-    def ing_teclado(self, tecla):
-        ind = len(self.entrada_ecuacion.get())
-        self.entrada_ecuacion.insert(ind, tecla)
+    def ing_teclado(self, tecla):   # METODO DE INGRESO DE CARACTERES
+        ind, tecla = entry(self.entrada_ecuacion.get(),tecla)   # LLAMADO A LA FUNCION ENTRY, RETORNA INDICE Y CARACTER A POSTEAR
+        self.entrada_ecuacion.delete(ind)   # SE ELIMINA EL CARACTER QUE ESTE EN LA POSICION RETORNADA
+        self.entrada_ecuacion.insert(ind, tecla)    # SE INSERTA EN LA POSICION INDICADA EL CARACTER DE RETORNO
 
     def result(self):
         res = cal.calculate(self.entrada_ecuacion.get().strip())
