@@ -3,6 +3,7 @@ import json
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
+from datetime import date   # OBTENER FECHA ACTUAL
 
 # DIRECCION DE ARCHIVOS ADICIONALES
 key = "Proyecto_calcgrf/resources/graphic-calculator-db-firebase-adminsdk-i358v-e3aad94d63.json"
@@ -34,31 +35,21 @@ def user_check(email,password): # FUNCION READ DE LA DB
 
 def user_edit(user, data):  # FUNCION UPDATE DE LA DB
     # Modificar un dato
-    #self.ref = db.reference('Productos')
-    #self.producto_ref = self.ref.child('-NtPAfD711oGpLZ68YLe')
-    #self.producto_ref.update({'pulgadas':'10'})
-    pass
+    ref = db.reference('/'+user)
+    user_ref = ref.child('historial')
+    data = {str(date.today()): data}
+    user_ref.update(data)
+    
 
 def user_delete(user, data):  # FUNCION DELETE DE LA DB
     pass
 
-def json_generator(data):
+def json_generator(user, data):
     # generamos un archivo
     archivo = 'file.json'
-
-    datos = {}  # Declarar datos como un diccionario
-    datos["sacamo"] = []    # lista dentro del diccionario
-    datos["sacamo"].append({
-        "user" : "sacamo@unal.edu.co",
-        "password" : "abcdefg",
+    datos = {
+        "user" : user,
         "historial" : data
-    })
-
-    #datos["sacamo"][0]["ecuaciones"] = ["ecuacion 1", "ecuacion 2"]
-
-    #ref = db.reference('/sacamo')
-    #user_ref = ref.child('historial')
-    #ref.update(["ecuacion 1", "ecuacion 2"])
-
+    } 
     with open(archivo, "w") as file:
         json.dump(datos, file, indent=4)

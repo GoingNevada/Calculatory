@@ -52,7 +52,7 @@ LO QUE SE ESTA ESCRIBIENDO, ANTES DE ENVIARLO AL ANALIZADOR MATEMATICO
 
 class Calculadora(tk.Tk):
     i = 0
-    def __init__(self): # CONSTRUCTOR DE LA CLASE
+    def __init__(self, user): # CONSTRUCTOR DE LA CLASE
         super().__init__()  # FUNCION DE CLASE PARA EJECUTAR METODOS HIJOS
         self.title("Calculadora")   # NOMBRE DE LA APLICACION
         self.iconbitmap(icono)      # ICONO DE LA APLICACION
@@ -62,14 +62,18 @@ class Calculadora(tk.Tk):
         #----------------VARIABLES GLOBALES DE DE LA CLASE--------------#
         self.entrada = ''
         self.estado_aux = False
+        self.usuario = user
         
         #----------------OPCIONES DE MENU--------------------#
         self.filemenu = tk.Menu(self.menubar, tearoff=0)
         self.filemenu.add_command(label="Nuevo")
         self.filemenu.add_command(label="Abrir")
-        self.filemenu.add_command(label="Guardar", command= self.guardar)
-        self.filemenu.add_command(label="Sincronizar en DB")
-        self.filemenu.add_command(label="Cerrar")
+        self.filemenu.add_command(label="Guardar json", command=self.guardar)
+        if self.usuario != 'None':
+            self.filemenu.add_command(label="Sincronizar en DB", command=self.syncr, state='active')
+        else:
+            self.filemenu.add_command(label="Sincronizar en DB", command=self.syncr, state='disabled')
+        self.filemenu.add_command(label="Cerrar", command=self.cerrar)
         self.filemenu.add_separator()
         self.filemenu.add_command(label="Salir", command=self.quit)
 
@@ -376,7 +380,8 @@ class Calculadora(tk.Tk):
         self.entrada_ecuacion.insert(ind, tecla)    # SE INSERTA EN LA POSICION INDICADA EL CARACTER DE RETORNO
 
     def result(self):
-        res = cal.calculate(self.entrada_ecuacion.get().strip())
+        ecu = self.entrada_ecuacion.get().strip()
+        res = solver(ecu)
         historial.append(self.entrada_ecuacion.get())
         self.obtener_info()
         if type(res) != np.ndarray:
@@ -389,7 +394,7 @@ class Calculadora(tk.Tk):
             self.resultado.destroy()    # DESTRUIMOS EL LABEL DE RESULTADOS
             self.graficacion = tk.Canvas(self, width=50, height=50) # CONTRUIMOS EL ESPACIO PARA LA FIGURA A GENERAR
             self.graficacion.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=5, pady=5) # SE UBICA DENTRO DE LA VENTANA
-            self.figura = Figure(figsize=(4, 3), dpi=100)   # SE AGREGA FIGURA AL CANVAS GENERADO
+            self.figura = Figure(figsize=(4, 4), dpi=100)   # SE AGREGA FIGURA AL CANVAS GENERADO
             self.ax = self.figura.add_subplot(111)  # SE CONFIGURA LA DISPOSICION DE LA FIGURA DENTRO DEL CANVAS
             self.canvas = FigureCanvasTkAgg(self.figura, master=self.graficacion)   
             self.canvas.get_tk_widget().pack(side=tk.TOP, expand=1, fill=tk.BOTH)   # SE UBICA EN LA VENTANA
@@ -404,10 +409,10 @@ class Calculadora(tk.Tk):
             self.ax.axvline(0, color='black', lw=0.5)
             #self.ax.spines['left'].set_position('center')
             #self.ax.spines['bottom'].set_position('center')
-            self.ax.set_xlim([-10, 10])
-            self.ax.set_xticks(range(-10, 11, 2))
-            self.ax.set_ylim([-5, 5])
-            self.ax.set_yticks(range(-6, 7, 2))
+            #self.ax.set_xlim([-10, 10])
+            #self.ax.set_xticks(range(-10, 11, 2))
+            #self.ax.set_ylim([-10, 10])
+            #self.ax.set_yticks(range(-6, 7, 2))
             self.canvas.draw()
 
     def ans(self):
@@ -427,7 +432,16 @@ class Calculadora(tk.Tk):
         self.entrada_ecuacion.delete(ind-1)
 
     def guardar(self):
-        user_edit("sacamo@unal.edu.co", historial)
+        user = self.usuario.split('@') # OBTENEMOS EL USUARIO DEL EMAIL INGRESADO
+        json_generator(user[0], historial)
+    
+    def syncr(self):
+        user_edit(self.usuario, historial)
+    
+    def cerrar(self):
+        self.destroy()
+        Login()
+
 
     def obtener_info(self):
         print(historial)
@@ -529,7 +543,7 @@ class Login(tk.Tk):
         if user_check(email=user, password=password):
             messagebox.showinfo("Acceso Correcto", "Usuario verificado")
             self.destroy()
-            Calculadora()
+            Calculadora(user)
         else:
             messagebox.showinfo("Acceso Incorrecto", "Los datos ingresados no son correctos")
 
@@ -542,7 +556,7 @@ class Login(tk.Tk):
 
     def inv_entrar(self):
         self.destroy()
-        Calculadora()
+        Calculadora('None')
 
 class Form(Tk):
     def __init__(self):

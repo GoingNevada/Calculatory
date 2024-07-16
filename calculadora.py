@@ -14,7 +14,8 @@ jerarquia de operadores
 from tkinter import messagebox  # tkinter para el uso de cajas de mensajes
 import sympy as sp  # modulo para el analisis matematico de expresiones complejas
 import numpy as np  # modulo para el analisis vectorial y matricial
-import Proyecto_calcgrf.libraries.calculadora as cal
+import matplotlib.pyplot as plt # modulo para la creacion de graficos
+import Proyecto_calcgrf.libraries.mathy as cal
 import re   # modulo para el manejo de expresiones regulares
 
 
@@ -34,7 +35,7 @@ def entry(entr, tecla):    # ANALIZADOR DE SINTAXIS
     if entr:    # PREGUNTAMOS SI LA CADENA NO ESTA VACIA
         ind = len(entr) # OBTENEMOS EL TAMAÑO DE LA CADENA DE ENTRADA
         if tecla in numeros:    # SI EL CARACTER ENTRANTE ES UN NUMERO, ENTONCES...
-            return ind, tecla   # RETORNAMOS EL INDICE Y EL CARACTER SE QUE POSICIONARA
+            return ind, tecla   # RETORNAMOS EL INDICE Y EL CARACTER QUE SE POSICIONARA
         elif tecla in funciones:    # SI EL CARACTER ENTRANTE ES UNA FUNCION, ENTONCES...
             if entr[ind-1] in signos:   # PREGUNTAMOS SI ANTERIORMENTE EXISTE UN SIGNO 
                 return ind, tecla       # SI EXISTE, ENTONCES SOLO SE RETORNA INDICE Y EL CARACTER (+ sin(45))
@@ -60,6 +61,27 @@ def entry(entr, tecla):    # ANALIZADOR DE SINTAXIS
     else:
         return 0, tecla # SI LA CADENA ESTA VACIA, SE RETORNA INDICE = 0 Y EL CARACTER
 
+def solver(entrada):
+    if entrada:
+        try:
+            if 'x' not in entrada:
+                return cal.calculate(entrada)
+            else:
+                return graph(entrada)
+        except Exception:
+            messagebox.showerror(message="Ecuación ingresada no valida", title="Error de ingreso")
+            return 'SyntaxError'
+    else:
+        messagebox.showerror(message="Por favor ingrese una ecuación valida", title="Error en ecuación")
+        return 'SyntaxError'
+
+def graph(entrada):
+    x_values = np.linspace(-100, 100, 1000)
+    y_values = np.array([cal.calculate(re.sub('x', '('+str(i)+')', entrada)) for i in x_values])
+    return y_values
+
+
+"""
 def resolver(entrada):
     ecuacion = entrada
     if not ecuacion:
@@ -85,6 +107,4 @@ def resolver(entrada):
     except Exception:
         messagebox.showerror(message="Ecuación ingresada no valida", title="Error de ingreso")
         return 'e'
-
-def graficator():
-    pass
+"""
