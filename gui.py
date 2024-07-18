@@ -2,13 +2,13 @@
 
 # IMPORTACION DE MODULOS 
 import tkinter as tk
-from tkinter import ttk, messagebox, OptionMenu, Label, StringVar, Entry, Button, Spinbox, IntVar, Tk
+from tkinter import ttk, messagebox, Label, Entry, Tk, Checkbutton, colorchooser
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 from PIL import Image, ImageTk
 import numpy as np
-from calculadora import *
-from db_graph import *
+from Proyecto_calcgrf.calc_ctrl import *
+from Proyecto_calcgrf.db_ctrl import *
 
 # DIRECCION DE ARCHIVOS ADICIONALES
 icono = "Proyecto_calcgrf/resources/icono.ico"  # IMAGEN DE ICONO
@@ -23,7 +23,6 @@ fondo2 = "#134F5C"  # FONDO PARA FORM
 fondo3 = "#434343"  # FONDO PARA CALCULADORA
 
 # VARIABLES GLOBALES
-
 teclas_aux = [['arc',   'hyp'    , '!'  ,    '%'      ],
               ['sin','sin\u207b¹','sinh','sinh\u207b¹'],
               ['cos','cos\u207b¹','cosh','cosh\u207b¹'],
@@ -42,6 +41,10 @@ teclas = [ ['\u21C4','x','y','C','\u232B'],
 
 historial = []
 
+decimales = 'Flotante 6'
+angulo = 'Radián'
+formato = 'Normal'
+
 
 ##### IMPORTANTE!!!!!!
 
@@ -53,7 +56,7 @@ LO QUE SE ESTA ESCRIBIENDO, ANTES DE ENVIARLO AL ANALIZADOR MATEMATICO
 class Calculadora(tk.Tk):
     i = 0
     def __init__(self, user): # CONSTRUCTOR DE LA CLASE
-        super().__init__()  # FUNCION DE CLASE PARA EJECUTAR METODOS HIJOS
+        super().__init__()  # FUNCION DE CLASE PARA EJECUTAR METODOS PADRE (TKINTER)
         self.title("Calculadora")   # NOMBRE DE LA APLICACION
         self.iconbitmap(icono)      # ICONO DE LA APLICACION
         self.menubar = tk.Menu(self)    # CREACION DE UN MENU EN LA BARRA SUPERIOR
@@ -78,8 +81,8 @@ class Calculadora(tk.Tk):
         self.filemenu.add_command(label="Salir", command=self.quit)
 
         self.editmenu = tk.Menu(self.menubar, tearoff=0)
-        self.editmenu.add_command(label="Configuración de graficos")
-        self.editmenu.add_command(label="Configuración de calculo")
+        self.editmenu.add_command(label="Configuración de graficos", command=self.cfg_graph)
+        self.editmenu.add_command(label="Configuración de calculo", command=self.cfg_calc)
 
         self.helpmenu = tk.Menu(self.menubar, tearoff=0)
         self.helpmenu.add_command(label="Ayuda")
@@ -442,6 +445,13 @@ class Calculadora(tk.Tk):
         self.destroy()
         Login()
 
+    def cfg_calc(self):
+        confg_calc()
+        cfg = [decimales,angulo,formato] 
+        calc_config(cfg)
+
+    def cfg_graph(self):
+        confg_graph()
 
     def obtener_info(self):
         print(historial)
@@ -623,3 +633,234 @@ class Form(Tk):
     def regresar(self):
         self.destroy()
         Login()
+
+
+class confg_calc(Tk):
+    def __init__(self):
+        super().__init__()
+
+        global angulo, formato, decimales
+        # CONFIGURACION DE LA VENTANA Y SU ESTRUCTURA
+        self.title('Configuración de calculo')
+        self.configure(padx=5)
+        self.resizable(False,False)
+
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+        self.columnconfigure(2, weight=1)
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
+        self.rowconfigure(2, weight=1)
+        self.rowconfigure(3, weight=1)
+
+        # ZONA DE CAMBIOS DE CONFIGURACION
+        self.etq_digitos = Label(self, text="Mostrar dígitos", fg="black", font=("Arial", 12))
+        self.etq_digitos.grid(row=0, column=0, sticky="nsew", columnspan=2, pady=[10,5])
+
+        self.etq_angulo = Label(self, text="Ángulo", fg="black", font=("Arial", 12))
+        self.etq_angulo.grid(row=1, column=0, sticky="nsew", columnspan=2, pady=[0,5])
+
+        self.etq_formato = Label(self, text="Formato exponencial", fg="black", font=("Arial", 12))
+        self.etq_formato.grid(row=2, column=0, sticky="nsew", columnspan=2, pady=[0,5])
+
+        self.entry_digitos = ttk.Combobox(self, font=("Arial", 12), width=10, state="readonly", values=['Flotante 1','Flotante 2','Flotante 3',
+                                                                                                        'Flotante 4','Flotante 5','Flotante 6',
+                                                                                                        'Flotante 7','Flotante 8','Flotante 9',
+                                                                                                        'Flotante 10','Flotante 11','Flotante 12'])
+        self.entry_digitos.set(decimales)
+        self.entry_digitos.grid(row=0,column=2, pady=[10,10])
+
+        self.entry_angulo = ttk.Combobox(self, font=("Arial", 12), state="readonly", values=['Radián','Grado'], width=10)
+        self.entry_angulo.set(angulo)
+        self.entry_angulo.grid(row=1,column=2, pady=[0,10])
+        
+        self.entry_formato = ttk.Combobox(self, font=("Arial", 12), state="readonly", values=['Normal','Científico'], width=10)
+        self.entry_formato.set(formato)
+        self.entry_formato.grid(row=2,column=2, pady=[0,10])
+
+        # BOTONES DE ACEPTAR O CANCELAR CONFIGURACION
+        button_style = ttk.Style()
+        button_style.configure("button_style.TButton", font=("Arial", 12))
+
+        self.boton_rest = ttk.Button(self, text="Restaurar", cursor="hand2", style="button_style.TButton", command=self.restore)
+        self.boton_rest.grid(row=3, column=0, sticky="nsew", pady=[0, 5])
+
+        self.boton_acep = ttk.Button(self, text="Aceptar", cursor="hand2", style="button_style.TButton", command=self.confirm)
+        self.boton_acep.grid(row=3, column=1, sticky="nsew", pady=[0, 5])
+
+        self.boton_canc = ttk.Button(self, text="Cancelar", cursor="hand2", style="button_style.TButton", command=self.destroy)
+        self.boton_canc.grid(row=3, column=2, sticky="nsew", pady=[0, 5])
+
+    def restore(self):
+        self.entry_digitos.set("Flotante 6")
+        self.entry_angulo.set("Radián")
+        self.entry_formato.set("Normal")
+
+    def confirm(self):
+        global decimales, angulo, formato
+        decimales = self.entry_digitos.get()
+        angulo = self.entry_angulo.get()
+        formato = self.entry_formato.get()
+        self.destroy()
+
+
+class confg_graph(Tk):
+    def __init__(self):
+        super().__init__()
+
+        # CONFIGURACION DE LA VENTANA Y SU ESTRUCTURA
+        self.title('Configuración de graficos')
+        self.configure(padx=8)
+        self.resizable(False,False)
+
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
+        self.rowconfigure(2, weight=1)
+        self.rowconfigure(3, weight=1)
+        self.rowconfigure(4, weight=1)
+        self.rowconfigure(5, weight=1)
+        self.rowconfigure(6, weight=1)
+        self.rowconfigure(7, weight=1)
+        self.rowconfigure(8, weight=1)
+        self.rowconfigure(9, weight=1)
+
+        # CONFIGURACION DE ESTILOS DE WIDGETS
+        button_style = ttk.Style()
+        button_style.configure("button_style.TButton", font=("Arial", 12))
+        
+        # CONFIGURACION DE GRILLA
+        self.etq_grilla = Label(self, text="Grilla", fg= "black", font=("Arial", 14))
+        self.etq_grilla.grid(row=0, column=0, sticky="nsew", columnspan=2, pady=[10,5])
+
+        self.etq_mostrar = Label(self, text="Mostrar grilla", fg= "black", font=("Arial", 12))
+        self.etq_mostrar.grid(row=1, column=0, sticky="nsew", pady=[0,5])
+
+        self.etq_lineas = Label(self, text="Lineas", fg= "black", font=("Arial", 12))
+        self.etq_lineas.grid(row=2, column=0, sticky="nsew", pady=[0,5])
+
+        self.etq_ejes = Label(self, text="Ejes", fg= "black", font=("Arial", 12))
+        self.etq_ejes.grid(row=3, column=0, sticky="nsew", pady=[0,5])
+
+        self.chkbox_value = tk.BooleanVar(self)
+        self.chkbox_mostrar = Checkbutton(self, anchor="center", variable=self.chkbox_value)
+        self.chkbox_mostrar.grid(row=1, column=1, sticky="nsew", pady=[0,5])
+
+        self.entry_lineas = ttk.Combobox(self, font=("Arial", 12), state="readonly", values=['Mayor','Menor','Ambos'], width=10)
+        self.entry_lineas.set("Ambos")
+        self.entry_lineas.grid(row=2, column=1, sticky="nsew", pady=[0,10])
+        
+        self.entry_ejes = ttk.Combobox(self, font=("Arial", 12), state="readonly", values=['X','Y','Ambos'], width=10)
+        self.entry_ejes.set("Ambos")
+        self.entry_ejes.grid(row=3, column=1, sticky="nsew", pady=[0,10])
+        
+        # CONFIGURACION DE EJES
+        self.etq_limites = Label(self, text="Limites de ejes", fg= "black", font=("Arial", 14))
+        self.etq_limites.grid(row=4, column=0, sticky="nsew", columnspan=2, pady=[2,5])
+
+        self.xframe = tk.Frame(self, background="gray")
+        self.xframe.grid(row=5, column=0, sticky="nsew", pady=[0,5], columnspan=2)
+        self.xframe.rowconfigure(0, weight=1)
+        self.xframe.columnconfigure(0, weight=1)
+        self.xframe.columnconfigure(1, weight=1)
+        self.xframe.columnconfigure(2, weight=1)
+        self.xframe.columnconfigure(3, weight=1)
+        
+        self.etq_xmin = Label(self.xframe, text="Xmin", fg= "black", font=("Arial", 12))
+        self.etq_xmin.grid(row=0, column=0, sticky="nsew")
+
+        self.entry_xmin_val = tk.DoubleVar(self.xframe, value=-20.0)
+        self.entry_xmin = Entry(self.xframe, font=("Arial", 12), textvariable=self.entry_xmin_val, width=4)
+        self.entry_xmin.grid(row=0, column=1, sticky="nsew")
+
+        self.etq_xmax = Label(self.xframe, text="Xmax", fg= "black", font=("Arial", 12))
+        self.etq_xmax.grid(row=0, column=2, sticky="nsew")
+
+        self.entry_xmax_val = tk.DoubleVar(self.xframe, value=20.0)
+        self.entry_xmax = Entry(self.xframe, font=("Arial", 12), textvariable=self.entry_xmax_val, width=4)
+        self.entry_xmax.grid(row=0, column=3, sticky="nsew")
+
+
+        self.yframe = tk.Frame(self)
+        self.yframe.grid(row=6, column=0, sticky="nsew", pady=[0,5], columnspan=2)
+        self.yframe.rowconfigure(0, weight=1)
+        self.yframe.columnconfigure(0, weight=1)
+        self.yframe.columnconfigure(1, weight=1)
+        self.yframe.columnconfigure(2, weight=1)
+        self.yframe.columnconfigure(3, weight=1)
+
+        self.etq_ymin = Label(self.yframe, text="Ymin", fg= "black", font=("Arial", 12))
+        self.etq_ymin.grid(row=0, column=0, sticky="nsew")
+
+        self.entry_ymin_val = tk.DoubleVar(self.yframe, value=-20.0)
+        self.entry_ymin = Entry(self.yframe, font=("Arial", 12), textvariable=self.entry_ymin_val, width=4)
+        self.entry_ymin.grid(row=0, column=1, sticky="nsew")
+
+        self.etq_ymax = Label(self.yframe, text="Ymax", fg= "black", font=("Arial", 12))
+        self.etq_ymax.grid(row=0, column=2, sticky="nsew")
+
+        self.entry_ymax_val = tk.DoubleVar(self.yframe, value=20.0)
+        self.entry_ymax = Entry(self.yframe, font=("Arial", 12), textvariable=self.entry_ymax_val, width=4)
+        self.entry_ymax.grid(row=0, column=3, sticky="nsew")
+        
+        # CONFIGURACION DE LINEA
+        self.etq_estilo = Label(self, text="Estilo de linea", fg= "black", font=("Arial", 14))
+        self.etq_estilo.grid(row=7, column=0, sticky="nsew", columnspan=2, pady=[2,5])
+
+        self.font_color = tk.Frame(self)
+        self.font_color.grid(row=8, column=0, sticky="nsew", pady=[0,5], columnspan=2)
+        self.font_color.rowconfigure(0, weight=1)
+        self.font_color.columnconfigure(0, weight=1)
+        self.font_color.columnconfigure(1, weight=1)
+        self.font_color.columnconfigure(2, weight=1)
+
+        self.etq_color = Label(self.font_color, text="Color de trazo", fg= "black", font=("Arial", 12), width=5)
+        self.etq_color.grid(row=0, column=0, sticky="nsew")
+
+        self.lab_color = Label(self.font_color, fg= "black", background="black", relief="raised", height=1)
+        self.lab_color.grid(row=0, column=1, sticky="nsew", padx=2, pady=5)
+
+        self.button_color = ttk.Button(self.font_color, text="Cambiar", style="button_style.TButton", command=self.pick_color, width=2)
+        self.button_color.grid(row=0, column=2, sticky="nsew")
+
+        # BOTONES DE ACEPTAR O CANCELAR CONFIGURACION
+        self.font_boton = tk.Frame(self)
+        self.font_boton.grid(row=9, column=0, columnspan=2, sticky="nsew", pady=[0,5])
+        self.font_boton.rowconfigure(0, weight=1)
+        self.font_boton.columnconfigure(0, weight=1)
+        self.font_boton.columnconfigure(1, weight=1)
+        self.font_boton.columnconfigure(2, weight=1)
+
+        self.boton_rest = ttk.Button(self.font_boton, text="Restaurar", cursor="hand2", style="button_style.TButton", command=self.restore, width=8)
+        self.boton_rest.grid(row=0,column=0, sticky="nsew")
+
+        self.boton_acep = ttk.Button(self.font_boton, text="Aceptar", cursor="hand2", style="button_style.TButton", command=self.confirm, width=8)
+        self.boton_acep.grid(row=0,column=1, sticky="nsew")
+
+        self.boton_canc = ttk.Button(self.font_boton, text="Cancelar", cursor="hand2", style="button_style.TButton", command=self.destroy, width=8)
+        self.boton_canc.grid(row=0,column=2, sticky="nsew")
+
+    def pick_color(self):
+        self.color = colorchooser.askcolor()[1]  # Ask the user to choose a color and get the hex code
+        if self.color:
+            self.lab_color.config(background=self.color)  # Set the foreground color of the Label
+
+    def restore(self):
+        self.chkbox_value.set(False)
+        self.entry_lineas.set("Ambos")
+        self.entry_ejes.set("Ambos")
+        self.entry_xmin_val.set(-20.0)
+        self.entry_xmax_val.set(20.0)
+        self.entry_ymin_val.set(-20.0)
+        self.entry_ymax_val.set(20.0)
+        self.lab_color.config(background="black")
+
+    def confirm(self):
+        self.chkbox_value.get()
+        self.entry_lineas.get()
+        self.entry_ejes.get()
+        self.entry_xmin_val.get()
+        self.entry_xmax_val.get()
+        self.entry_ymin_val.get()
+        self.entry_ymax_val.get()
