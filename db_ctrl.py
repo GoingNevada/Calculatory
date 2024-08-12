@@ -3,10 +3,10 @@ import json
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
-from datetime import date   # OBTENER FECHA ACTUAL
+from datetime import datetime   # OBTENER FECHA Y HORA ACTUAL
 
 # DIRECCION DE ARCHIVOS ADICIONALES
-key = "Proyecto_calcgrf/resources/graphic-calculator-db-firebase-adminsdk-i358v-e3aad94d63.json"
+key = "resources/graphic-calculator-db-firebase-adminsdk-i358v-5bc4f42f6f.json"
 url = 'https://graphic-calculator-db-default-rtdb.firebaseio.com/'
 
 def db_init():  # FUNCION DE INICIO DE LA DB
@@ -24,7 +24,7 @@ def user_creator(email,password): # FUNCION CREATE DE LA DB
 
 def user_check(email,password): # FUNCION READ DE LA DB
     ref = db.reference('/') # ESPECIFICAMOS EN QUE DIRECCION VAMOS A POSICIONARNOS
-    data = ref.get() # OBTENERMOS LA INFORMACION DE LA DIRECCION SELECCIONADA
+    data = ref.get() # OBTENEMOS LA INFORMACION DE LA DIRECCION SELECCIONADA
     user = email.split('@') # OBTENEMOS EL USUARIO DEL EMAIL INGRESADO
     for usuario in data:    # ITERAMOS EN EL DICCIONARIO OBTENIDO EN DATA PARA BUSCAR SI EXISTE EL USUARIO
         if usuario==user[0]:    # SI EL USUARIO EXISTE ENTONCES:
@@ -37,9 +37,8 @@ def user_edit(user, data):  # FUNCION UPDATE DE LA DB
     # Modificar un dato
     ref = db.reference('/'+user)
     user_ref = ref.child('historial')
-    data = {str(date.today()): data}
-    user_ref.update(data)
-    
+    data = {datetime.now().strftime('%d-%m-%Y %H:%M'): data}    # FORMATEO DE DATOS CON CLAVE DE FECHA Y HORA
+    user_ref.update(data)   # SE SUBE LA INFORMACION AL HISTORIAL DEL USUARIO CORRESPONDIENTE
 
 def user_delete(user, data):  # FUNCION DELETE DE LA DB
     pass
@@ -49,6 +48,7 @@ def json_generator(user, data):
     archivo = 'file.json'
     datos = {
         "user" : user,
+        "fecha" : datetime.now().strftime('%d-%m-%Y %H:%M'),
         "historial" : data
     } 
     with open(archivo, "w") as file:

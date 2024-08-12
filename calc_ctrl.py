@@ -13,9 +13,22 @@ jerarquia de operadores
 #-----IMPORTACION DE MODULOS----
 from tkinter import messagebox  # tkinter para el uso de cajas de mensajes
 import numpy as np  # modulo para el analisis vectorial y matricial
-import Proyecto_calcgrf.libraries.mathy as cal
+import libraries.mathy as cal
 import re   # modulo para el manejo de expresiones regulares
 
+teclas_aux = [['arc'  , '!'  ,    '%'    ],
+              ['sin'  , 'cos',   'tan'   ],
+              ['csc'  , 'sec',   'cot'   ],
+              ['sin\u207b¹','cos\u207b¹','tan\u207b¹'],
+              ['csc\u207b¹','sec\u207b¹','cot\u207b¹']]
+
+teclas = [ ['\u21C4','x','y','C','\u232B'],
+           [ 'sin', 'cos','tan','ans','÷'],
+           ['x\u207F', '(', ')','|x|','*'],
+           [ 'e' , '7' , '8' , '9' , '-' ],
+           ['\u207F\u221Ax','4','5','6','+'],
+           [ 'log', '1', '2','3','\u21B5'],
+           ['ln' ,'\u03C0' ,'0' ,'.' ,'_']]
 
 # CONFIGURACION POR DEFECTO
 angulo = 'Radian'   # Calculo de un angulo dado en Grado | Radian
@@ -32,7 +45,7 @@ def graph_config():
 
 numeros = ['0','1','2','3','4','5','6','7','8','9']
 funciones = ['sin(','cos(','tan(','ln(','log(x,b)','root(x,i)','abs(','e','\u03C0']
-signos = ['+','-','/','*','^']
+signos = ['+','-','/','*','^','(']
 
 def entry(entr, tecla):    # ANALIZADOR DE SINTAXIS
     if entr:    # PREGUNTAMOS SI LA CADENA NO ESTA VACIA
@@ -52,6 +65,8 @@ def entry(entr, tecla):    # ANALIZADOR DE SINTAXIS
         elif tecla=='.':    # SI EL CARACTER ES '.', ENTONCES...
             if entr[ind-1] in numeros:  # PREGUNTAMOS SI HAY NUMEROS ANTERIORMENTE
                 return ind, tecla   # SI EXISTE, ENTONCES SOLO SE RETRONA INDICE Y EL CARACTER (1.)
+            elif entr[ind-1] in signos:
+                return ind, '0.'
             else:                   
                 return ind, '*0.'   # SI NO, ENTONCES SE RETRONA INDICE Y SE AGREGA '*0' AL CARACTER (*0.)
         else:
@@ -79,9 +94,13 @@ def solver(entrada):
         return 'SyntaxError'
 
 def evaluate(entrada):
-    return cal.calculate(entrada)
+    x = cal.calculate(entrada)
+    if cal.is_number(x):
+        return x
+    else:
+        return None
 
 def graph(entrada):
     x_values = np.linspace(-100, 100, 1000)
-    y_values = np.array([cal.calculate(re.sub('x', '('+str(i)+')', entrada)) for i in x_values])
+    y_values = np.array([evaluate(re.sub('x', '('+str(i)+')', entrada)) for i in x_values])
     return y_values
