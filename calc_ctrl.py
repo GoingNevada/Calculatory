@@ -44,19 +44,13 @@ def graph_config():
     pass
 
 numeros = ['0','1','2','3','4','5','6','7','8','9']
-funciones = ['sin(','cos(','tan(','ln(','log(x,b)','root(x,i)','abs(','e','\u03C0']
-signos = ['+','-','/','*','^','(']
+signos = ['+','-','/','*','^']
 
 def entry(entr, tecla):    # ANALIZADOR DE SINTAXIS
     if entr:    # PREGUNTAMOS SI LA CADENA NO ESTA VACIA
         ind = len(entr) # OBTENEMOS EL TAMAÑO DE LA CADENA DE ENTRADA
         if tecla in numeros:    # SI EL CARACTER ENTRANTE ES UN NUMERO, ENTONCES...
             return ind, tecla   # RETORNAMOS EL INDICE Y EL CARACTER QUE SE POSICIONARA
-        elif tecla in funciones:    # SI EL CARACTER ENTRANTE ES UNA FUNCION, ENTONCES...
-            if entr[ind-1] in signos:   # PREGUNTAMOS SI ANTERIORMENTE EXISTE UN SIGNO 
-                return ind, tecla       # SI EXISTE, ENTONCES SOLO SE RETORNA INDICE Y EL CARACTER (+ sin(45))
-            else:                       
-                return ind, '*' + tecla  # SI NO, ENTONCES SE RETORNA EL INDICE Y "* + EL CARACTER"  (* sin(45))
         elif tecla in signos:   # SI EL CARACTER ENTRANTE ES UN SIGNO, ENTONCES...
             if entr[ind-1] in signos:   # PREGUNTAMOS SI ANTERIORMENTE EXISTE UN SIGNO
                 return ind-1, tecla     # SI EXISTE, ENTONCES REEMPLAZAMOS ESE SIGNO POR EL NUEVO QUE INGRESA
@@ -70,7 +64,10 @@ def entry(entr, tecla):    # ANALIZADOR DE SINTAXIS
             else:                   
                 return ind, '*0.'   # SI NO, ENTONCES SE RETRONA INDICE Y SE AGREGA '*0' AL CARACTER (*0.)
         else:
-            return ind, tecla
+            if entr[ind-1] in signos:   # PREGUNTAMOS SI ANTERIORMENTE EXISTE UN SIGNO 
+                return ind, tecla       # SI EXISTE, ENTONCES SOLO SE RETORNA INDICE Y EL CARACTER (+ sin(45))
+            else:                       
+                return ind, '*' + tecla  # SI NO, ENTONCES SE RETORNA EL INDICE Y "* + EL CARACTER"  (* sin(45))
     elif tecla in ['/','*','^','+','%']:
         messagebox.showerror(message="Formato invalido", title="Error de sintaxis")
         return -1,''
@@ -94,9 +91,9 @@ def solver(entrada):
         return 'SyntaxError'
 
 def evaluate(entrada):
-    x = cal.calculate(entrada)
+    x = str(cal.calculate(entrada))
     if cal.is_number(x):
-        return x
+        return cal.conv_num(x)
     else:
         return None
 
