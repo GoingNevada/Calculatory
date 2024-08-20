@@ -60,7 +60,7 @@ class Calculadora(tk.Tk):
         self.iconbitmap(icono)      # ICONO DE LA APLICACION
         self.menubar = tk.Menu(self)    # CREACION DE UN MENU EN LA BARRA SUPERIOR
         self.configure(menu=self.menubar, background=fondo3)  # CONFIGURACION DE LA VENTANA
-        #self.resizable(False,False)
+        #self.geometry('370x352+78+78')
 
         #----------------VARIABLES GLOBALES DE DE LA CLASE--------------#
         self.entrada = ''
@@ -124,9 +124,11 @@ class Calculadora(tk.Tk):
 
         #-------------BLOQUE DE SALIDA DE RESULTADOS--------------#
         self.ecuacion = tk.StringVar()
-        self.resultado = ttk.Label(self, textvariable=self.ecuacion, font=('Arial', 18), justify='right')
+        self.resultado = ttk.Label(self, textvariable=self.ecuacion, font=('Arial', 18))
         self.resultado.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=5, pady=[0,5])
         self.graficacion = tk.Canvas(self, width=50, height=50)
+        
+        self.ecuacion2 = ttk.Entry(self, font=('Arial', 18), justify='left')
 
         #---------BLOQUE DE BOTONES CON FUNCIONALIDADES-------#
         estilo = ttk.Style()
@@ -279,25 +281,27 @@ class Calculadora(tk.Tk):
         self.btns_state = False  # ESTADO DEL BOTON ASOCIADO A CAMBIO
         self.light_theme() # CONFIGURACION EN MODO CLARO POR DEFECTO
 
+        #altura = self.winfo_geometry()
 
     def chg_state(self):
         self.btns_state = not(self.btns_state)
+        estilo = "light_button.TButton" if self.tema_sel.get() == 1 else "dark_button.TButton"
         if self.btns_state==True:
             self.boton_arc.configure(style="pulse_button.TButton")
-            self.boton_nsin.configure(text='sin\u207b¹', command=lambda: self.ing_teclado('asin('))
-            self.boton_ncos.configure(text='cos\u207b¹', command=lambda: self.ing_teclado('acos('))
-            self.boton_ntan.configure(text='tan\u207b¹', command=lambda: self.ing_teclado('atan('))
-            self.boton_csc.configure(text='csc\u207b¹', command=lambda: self.ing_teclado('acsc('))
-            self.boton_sec.configure(text='sec\u207b¹', command=lambda: self.ing_teclado('asec('))
-            self.boton_cot.configure(text='cot\u207b¹', command=lambda: self.ing_teclado('acot('))
+            self.boton_nsin.configure(text='sin\u207b¹', command=lambda: self.ing_teclado('asin('), style=estilo)
+            self.boton_ncos.configure(text='cos\u207b¹', command=lambda: self.ing_teclado('acos('), style=estilo)
+            self.boton_ntan.configure(text='tan\u207b¹', command=lambda: self.ing_teclado('atan('), style=estilo)
+            self.boton_csc.configure(text='csc\u207b¹', command=lambda: self.ing_teclado('acsc('), style=estilo)
+            self.boton_sec.configure(text='sec\u207b¹', command=lambda: self.ing_teclado('asec('), style=estilo)
+            self.boton_cot.configure(text='cot\u207b¹', command=lambda: self.ing_teclado('acot('), style=estilo)
         else:
             self.boton_arc.configure(style="light_button.TButton")
-            self.boton_nsin.configure(text='sin', command=lambda: self.ing_teclado('sin('))
-            self.boton_ncos.configure(text='cos', command=lambda: self.ing_teclado('cos('))
-            self.boton_ntan.configure(text='tan', command=lambda: self.ing_teclado('tan('))
-            self.boton_csc.configure(text='csc', command=lambda: self.ing_teclado('csc('))
-            self.boton_sec.configure(text='sec', command=lambda: self.ing_teclado('sec('))
-            self.boton_cot.configure(text='cot', command=lambda: self.ing_teclado('cot('))
+            self.boton_nsin.configure(text='sin', command=lambda: self.ing_teclado('sin('), style=estilo)
+            self.boton_ncos.configure(text='cos', command=lambda: self.ing_teclado('cos('), style=estilo)
+            self.boton_ntan.configure(text='tan', command=lambda: self.ing_teclado('tan('), style=estilo)
+            self.boton_csc.configure(text='csc', command=lambda: self.ing_teclado('csc('), style=estilo)
+            self.boton_sec.configure(text='sec', command=lambda: self.ing_teclado('sec('), style=estilo)
+            self.boton_cot.configure(text='cot', command=lambda: self.ing_teclado('cot('), style=estilo)
             
     def aux_button(self):
         self.estado_aux = not(self.estado_aux)
@@ -312,7 +316,6 @@ class Calculadora(tk.Tk):
             self.boton_sec =  ttk.Button(self,text='sec', width=6, style=estilo, command=lambda: self.ing_teclado('sec('))
             self.boton_cot =  ttk.Button(self,text='cot', width=6, style=estilo, command=lambda: self.ing_teclado('cot('))
             self.boton_fac =  ttk.Button(self,text='!', width=6, style=estilo, command=lambda: self.ing_teclado('!'))
-            self.boton_porc = ttk.Button(self,text='%', width=6, style=estilo, command=lambda: self.ing_teclado('%'))
             self.boton_arc =  ttk.Button(self,text='arc', width=6, style=estilo, command= self.chg_state)
             self.boton_arc.configure(style=estilo)
             self.boton_nsin.grid(row=3, column=0, sticky="nsew", padx=2, pady=2)
@@ -323,7 +326,6 @@ class Calculadora(tk.Tk):
             self.boton_cot.grid(row=4, column=2, sticky="nsew", padx=2, pady=2)
             self.boton_arc.grid(row=5, column=0, sticky="nsew", padx=2, pady=2)
             self.boton_fac.grid(row=6, column=0, sticky="nsew", padx=2, pady=2)
-            self.boton_porc.grid(row=7, column=0, sticky="nsew", padx=2, pady=2)
         else:
             self.boton_change.configure(style=estilo)
             self.boton_nsin.destroy()
@@ -334,7 +336,6 @@ class Calculadora(tk.Tk):
             self.boton_cot.destroy()
             self.boton_arc.destroy()
             self.boton_fac.destroy()
-            self.boton_porc.destroy()
         self.btns_state = False
 
     def ing_teclado(self, tecla):   # METODO DE INGRESO DE CARACTERES
@@ -347,6 +348,7 @@ class Calculadora(tk.Tk):
         res = solver(ecu)
         if type(res) is int or type(res) is float:
             self.graficacion.destroy()
+            #self.geometry('370x352+78+78')
             self.columnconfigure(5, weight=0)
             self.resultado = ttk.Label(self, textvariable=self.ecuacion, font=('Arial', 18), justify='left')
             self.resultado.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=5, pady=[0,5])
@@ -359,7 +361,10 @@ class Calculadora(tk.Tk):
             self.res = ecu
             #-------------CONSTRUCCION DEL ESPACIO DE GRAFICACION-----------------------#
             #self.resultado.destroy()    # DESTRUIMOS EL LABEL DE RESULTADOS
+            self.state('zoomed')
             self.columnconfigure(5, weight=15)
+            self.resultado.destroy()
+            self.ecuacion2.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=5, pady=[0,5])
             self.graficacion.destroy() # DESTRUIMOS EL LABEL DE GRAFICACION POR SI EXISTE UNO ANTERIORMENTE CREADO
             self.graficacion = tk.Canvas(self, width=100, height=100) # CONTRUIMOS EL ESPACIO PARA LA FIGURA A GENERAR
             self.graficacion.grid(row=0, column=5, rowspan=9, sticky="nsew", padx=5, pady=5) # SE UBICA DENTRO DE LA VENTANA
@@ -371,8 +376,9 @@ class Calculadora(tk.Tk):
             self.tlb.update()   # ACTUALIZAMOS LAS CONFIGURACIONES REALIZADAS
 
             #--------------DUBUJADO DE LA FIGURA GENERADA-------------------------------#
-            x_values = np.linspace(-100, 100, 1000) # GENERAMOS LA LISTA DE LOS PUNTOS EN X PARA F(X)
+            x_values = np.linspace(-50, 50, 10000) # GENERAMOS LA LISTA DE LOS PUNTOS EN X PARA F(X)
             self.ax.plot(x_values, res, color=line_color) # DIBUJAMOS LA FIGURA
+            #self.ax.plot(x_values,g(x_values))
             self.ax.grid(grid_draw, which=name_dict[lineas], axis=name_dict[ejes])  # SE ACTIVA LA GRILLA
             self.ax.axhline(0, color='black', lw=0.5)
             self.ax.axvline(0, color='black', lw=0.5)
@@ -401,7 +407,7 @@ class Calculadora(tk.Tk):
         self.graficacion.destroy()
         self.columnconfigure(5, weight=0)
         self.ecuacion.set('')
-        self.resultado = ttk.Label(self, textvariable=self.ecuacion, font=('Arial', 18), justify='right')
+        self.resultado = ttk.Label(self, textvariable=self.ecuacion, font=('Arial', 18))
         self.resultado.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=5, pady=[0,5])
 
     def borrar(self):
@@ -488,6 +494,9 @@ class Calculadora(tk.Tk):
         self.boton_0.configure(style="dark_button.TButton")
         self.boton_negativo.configure(style="dark_button.TButton")
 
+        if self.estado_aux:
+            self.aux_button()
+
     def light_theme(self):
 
         light_style = ttk.Style()
@@ -531,6 +540,9 @@ class Calculadora(tk.Tk):
         self.boton_pi.configure(style="light_button.TButton")
         self.boton_0.configure(style="light_button.TButton")
         self.boton_negativo.configure(style="light_button.TButton")
+
+        if self.estado_aux:
+            self.aux_button()
 
 class Login(tk.Tk):
     def __init__(self):
@@ -621,12 +633,15 @@ class Login(tk.Tk):
     def entrar(self):
         user = self.entry_user.get()
         password = self.entry_password.get() 
-        if user_check(email=user, password=password):
-            messagebox.showinfo("Acceso Correcto", "Usuario verificado")
-            self.destroy()
-            Calculadora(user)
-        else:
-            messagebox.showinfo("Acceso Incorrecto", "Los datos ingresados no son correctos")
+        try:
+            if user_check(email=user, password=password):
+                messagebox.showinfo("Acceso Correcto", "Usuario verificado")
+                self.destroy()
+                Calculadora(user)
+            else:
+                messagebox.showinfo("Acceso Incorrecto", "Los datos ingresados no son correctos")
+        except Exception:
+            messagebox.showinfo("Problemas de acceso", "No se ha podido establecer la conexion con la base de datos, revise su conexion a internet")
 
     def forg_passw(self):
         pass
@@ -691,15 +706,18 @@ class Form(Tk):
     def registrar(self):
         email = self.entry_email.get()
         password = self.entry_pass1.get()
-        if password == self.entry_pass2.get():
-            if user_creator(email, password): 
-                messagebox.showinfo("Registro de usuario", f"Se ha registrado al usuario {email}, exitosamente")
-                self.destroy()
-                Login()
+        try:
+            if password == self.entry_pass2.get():
+                if user_creator(email, password): 
+                    messagebox.showinfo("Registro de usuario", f"Se ha registrado al usuario {email}, exitosamente")
+                    self.destroy()
+                    Login()
+                else:
+                    messagebox.showerror("Registro de usuario", "No se pudo registrar al usuario")
             else:
-                messagebox.showerror("Registro de usuario", "No se pudo registrar al usuario")
-        else:
-            messagebox.showinfo("Registro de usuario", "Las contraseñas no coinciden")
+                messagebox.showinfo("Registro de usuario", "Las contraseñas no coinciden")
+        except Exception:
+            messagebox.showinfo("Problemas de acceso", "No se ha podido registrar el usuario, revise su conexion a internet")
 
     def regresar(self):
         self.destroy()
@@ -762,6 +780,9 @@ class confg_calc(Tk):
 
         self.boton_canc = ttk.Button(self, text="Cancelar", cursor="hand2", style="button_style2.TButton", command=self.destroy)
         self.boton_canc.grid(row=3, column=2, sticky="nsew", pady=[0, 5])
+
+        self.focus()
+        self.grab_set()
 
     def restore(self):
         self.entry_digitos.set("Flotante 6")
@@ -914,6 +935,9 @@ class confg_graph(Tk):
 
         self.boton_canc = ttk.Button(self.font_boton, text="Cancelar", cursor="hand2", style="button_style2.TButton", command=self.destroy, width=12)
         self.boton_canc.grid(row=0,column=2, sticky="nsew")
+
+        self.focus()
+        self.grab_set()
 
     def pick_color(self):
         global line_color
