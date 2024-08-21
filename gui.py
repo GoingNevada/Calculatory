@@ -2,7 +2,7 @@
 
 # IMPORTACION DE MODULOS 
 import tkinter as tk
-from tkinter import ttk, messagebox, Label, Entry, Tk, Checkbutton, colorchooser
+from tkinter import ttk, messagebox, Label, Entry, Tk, Checkbutton, colorchooser, filedialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
 from PIL import Image, ImageTk
@@ -42,7 +42,9 @@ lineas = "Ambos"
 ejes = "Ambos"
 xlim = [-10,10]
 ylim = [-10,10]
-line_color = "black"
+line_color1 = "blue"
+line_color2 = "orange"
+line_color3 = "red"
 
 name_dict = {
     "Ambos" : "both",
@@ -50,6 +52,22 @@ name_dict = {
     "Menor" : "minor",
     "X" : "x",
     "Y" : "y"
+}
+
+decim_dict = {
+    'Flotante 0' : 0,
+    'Flotante 1' : 1,
+    'Flotante 2' : 2,
+    'Flotante 3' : 3,
+    'Flotante 4' : 4,
+    'Flotante 5' : 5,
+    'Flotante 6' : 6,
+    'Flotante 7' : 7,
+    'Flotante 8' : 8,
+    'Flotante 9' : 9,
+    'Flotante 10' : 10,
+    'Flotante 11' : 11,
+    'Flotante 12' : 12
 }
 
 class Calculadora(tk.Tk):
@@ -71,7 +89,7 @@ class Calculadora(tk.Tk):
         
         #----------------OPCIONES DE MENU--------------------#
         self.filemenu = tk.Menu(self.menubar, tearoff=0)
-        self.filemenu.add_command(label="Abrir desde json")
+        self.filemenu.add_command(label="Abrir desde json", command=self.file_open)
         self.filemenu.add_command(label="Guardar json", command=self.guardar)
         self.filemenu.add_command(label="Sincronizar en DB", command=self.syncr, state= 'active' if self.usuario != 'None' else 'disabled')
         self.filemenu.add_command(label="Cerrar", command=self.cerrar)
@@ -127,8 +145,7 @@ class Calculadora(tk.Tk):
         self.resultado = ttk.Label(self, textvariable=self.ecuacion, font=('Arial', 18))
         self.resultado.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=5, pady=[0,5])
         self.graficacion = tk.Canvas(self, width=50, height=50)
-        
-        self.ecuacion2 = ttk.Entry(self, font=('Arial', 18), justify='left')
+        self.xecuaciones = tk.Frame(self, bg=fondo3)
 
         #---------BLOQUE DE BOTONES CON FUNCIONALIDADES-------#
         estilo = ttk.Style()
@@ -203,7 +220,7 @@ class Calculadora(tk.Tk):
         self.boton_multi.grid(row=4, column=4, sticky="nsew", padx=2, pady=2)
         
         # Botón de e
-        self.boton_e = ttk.Button(self, text=teclas[3][0], width=6, command=lambda: self.ing_teclado('e'))
+        self.boton_e = ttk.Button(self, text=teclas[3][0], width=6, command=lambda: self.ing_teclado('\u212E'))
         self.boton_e.grid(row=5, column=0, sticky="nsew", padx=2, pady=2)
         
         # Botón de 7
@@ -345,10 +362,10 @@ class Calculadora(tk.Tk):
 
     def result(self):
         ecu = self.entrada_ecuacion.get().strip() # OBTENEMOS EL STRING EN ENTRADA Y ELIMINAMOS LOS ESPACIOS EN BLANCO
-        res = solver(ecu)
-        if type(res) is int or type(res) is float:
+        if 'x' not in ecu:
+            res = evaluate(ecu)
             self.graficacion.destroy()
-            #self.geometry('370x352+78+78')
+            self.xecuaciones.destroy()
             self.columnconfigure(5, weight=0)
             self.resultado = ttk.Label(self, textvariable=self.ecuacion, font=('Arial', 18), justify='left')
             self.resultado.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=5, pady=[0,5])
@@ -357,15 +374,46 @@ class Calculadora(tk.Tk):
                 historial.append(self.entrada_ecuacion.get())
             self.obtener_info()
             self.res = res
-        elif type(res) is np.ndarray:
+        else:
             self.res = ecu
             #-------------CONSTRUCCION DEL ESPACIO DE GRAFICACION-----------------------#
             #self.resultado.destroy()    # DESTRUIMOS EL LABEL DE RESULTADOS
             self.state('zoomed')
             self.columnconfigure(5, weight=15)
             self.resultado.destroy()
-            self.ecuacion2.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=5, pady=[0,5])
             self.graficacion.destroy() # DESTRUIMOS EL LABEL DE GRAFICACION POR SI EXISTE UNO ANTERIORMENTE CREADO
+            self.xecuaciones.destroy()
+            #self.entrada_ecuacion.destroy()
+
+            self.xecuaciones = tk.Frame(self, bg=fondo3)
+            self.xecuaciones.grid(row=0, column=0, sticky="nsew", pady=[0,5], columnspan=5, rowspan=2)
+            self.xecuaciones.rowconfigure(0, weight=1)
+            self.xecuaciones.rowconfigure(1, weight=1)
+            self.xecuaciones.rowconfigure(2, weight=1)
+            self.xecuaciones.columnconfigure(0, weight=3)
+            self.xecuaciones.columnconfigure(1, weight=3)
+
+            self.etiq_ecuacion1 = tk.Label(self.xecuaciones, text="F1", bg=line_color1, fg="black", font=('Harlow Solid Italic', 12))
+            self.etiq_ecuacion1.grid(row=0, column=0, sticky="nsew", padx=5, pady=[10,5])
+            self.entrada_ecuacion = ttk.Combobox(self.xecuaciones, font=('Arial', 18))
+            self.entrada_ecuacion.grid(row=0, column=1, sticky="nsew", padx=[0,5], pady=[10,5])
+            self.entrada_ecuacion.set(ecu)
+
+            self.ecuacionvar2 = tk.StringVar()
+            self.etiq_ecuacion2 = tk.Label(self.xecuaciones, text="F2", bg=line_color2, fg="black", font=('Harlow Solid Italic', 12))
+            self.etiq_ecuacion2.grid(row=1, column=0, sticky="nsew", padx=5, pady=[0,5])
+            self.ecuacion2 = ttk.Entry(self.xecuaciones, font=('Arial', 18), justify='left', textvariable=self.ecuacionvar2)
+            self.ecuacion2.grid(row=1, column=1, sticky="nsew", padx=[0,5], pady=[0,5])
+
+            self.etiq_ecuacion3 = tk.Label(self.xecuaciones, text="F3", bg=line_color3, fg="black", font=('Harlow Solid Italic', 12))
+            self.etiq_ecuacion3.grid(row=2, column=0, sticky="nsew", padx=5, pady=[0,5])
+            self.ecuacion3 = ttk.Entry(self.xecuaciones, font=('Arial', 18), justify='left')
+            self.ecuacion3.grid(row=2, column=1, sticky="nsew", padx=[0,5], pady=[0,5])
+
+            ecu2 = self.ecuacion2.get().strip()
+            self.ecuacionvar2.set(ecu2)
+            ecu3 = self.ecuacion2.get().strip()
+            
             self.graficacion = tk.Canvas(self, width=100, height=100) # CONTRUIMOS EL ESPACIO PARA LA FIGURA A GENERAR
             self.graficacion.grid(row=0, column=5, rowspan=9, sticky="nsew", padx=5, pady=5) # SE UBICA DENTRO DE LA VENTANA
             self.figura = Figure(figsize=(4, 3), dpi=100)   # SE AGREGA FIGURA AL CANVAS GENERADO
@@ -377,8 +425,11 @@ class Calculadora(tk.Tk):
 
             #--------------DUBUJADO DE LA FIGURA GENERADA-------------------------------#
             x_values = np.linspace(-50, 50, 10000) # GENERAMOS LA LISTA DE LOS PUNTOS EN X PARA F(X)
-            self.ax.plot(x_values, res, color=line_color) # DIBUJAMOS LA FIGURA
-            #self.ax.plot(x_values,g(x_values))
+            self.ax.plot(x_values, graph(ecu), color=line_color1) # DIBUJAMOS LA FIGURA
+            if ecu2:
+                self.ax.plot(x_values, graph(ecu2), color=line_color2)
+            if ecu3:
+                self.ax.plot(x_values, graph(ecu3), color=line_color3)
             self.ax.grid(grid_draw, which=name_dict[lineas], axis=name_dict[ejes])  # SE ACTIVA LA GRILLA
             self.ax.axhline(0, color='black', lw=0.5)
             self.ax.axvline(0, color='black', lw=0.5)
@@ -394,8 +445,6 @@ class Calculadora(tk.Tk):
             if self.entrada_ecuacion.get() not in historial:
                 historial.append(self.entrada_ecuacion.get())
             self.obtener_info()
-        else:
-            self.ecuacion.set(res)
 
     def ans(self):
         ind, tecla = entry(self.entrada_ecuacion.get(),str(self.res))   # LLAMADO A LA FUNCION ENTRY, RETORNA INDICE Y CARACTER A POSTEAR
@@ -405,8 +454,11 @@ class Calculadora(tk.Tk):
     def limpiar(self):
         self.entrada_ecuacion.delete(0, tk.END)
         self.graficacion.destroy()
+        self.xecuaciones.destroy()
         self.columnconfigure(5, weight=0)
         self.ecuacion.set('')
+        self.entrada_ecuacion = ttk.Combobox(self, font=('Arial', 18))
+        self.entrada_ecuacion.grid(row=0, column=0, sticky="nsew", columnspan=5, padx=5, pady=5)
         self.resultado = ttk.Label(self, textvariable=self.ecuacion, font=('Arial', 18))
         self.resultado.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=5, pady=[0,5])
 
@@ -417,8 +469,19 @@ class Calculadora(tk.Tk):
 
     def guardar(self):
         user = self.usuario.split('@') # OBTENEMOS EL USUARIO DEL EMAIL INGRESADO
-        json_generator(user[0], historial)
-    
+        nombrearch=filedialog.asksaveasfilename(initialdir = "/",title = "Guardar como",filetypes = (("json files","*.json"),("todos los archivos","*.*")))
+        json_generator(user[0], str(nombrearch), historial)
+
+    def file_open(self):
+        global historial
+        file = filedialog.askopenfilename(initialdir = "/",title = "Seleccione archivo",filetypes = (("json files","*.json"),("todos los archivos","*.*")))
+        if file !='':
+            data = json_reader(file)
+            self.del_hist()
+            historial = data
+            self.i = 0
+            self.obtener_info()
+
     def syncr(self):
         user = self.usuario.split('@') # OBTENEMOS EL USUARIO DEL EMAIL INGRESADO
         user_edit(user[0], historial)
@@ -432,12 +495,14 @@ class Calculadora(tk.Tk):
         Login()
 
     def cfg_calc(self):
-        confg_calc()
-        cfg = [decimales,angulo,formato] 
+        global decimales, angulo, formato
+        confg_calc().wait_window()
+        cfg = [decim_dict[decimales],angulo,formato] 
         calc_config(cfg)
 
     def cfg_graph(self):
-        confg_graph()
+        confg_graph().wait_window()
+        self.result()
 
     def obtener_info(self):
         print(historial)
@@ -753,7 +818,7 @@ class confg_calc(Tk):
         self.etq_formato = Label(self, text="Formato exponencial", fg="black", font=("Arial", 12))
         self.etq_formato.grid(row=2, column=0, sticky="nsew", columnspan=2, pady=[0,5])
 
-        self.entry_digitos = ttk.Combobox(self, font=("Arial", 12), width=10, state="readonly", values=['Flotante 1','Flotante 2','Flotante 3',
+        self.entry_digitos = ttk.Combobox(self, font=("Arial", 12), width=10, state="readonly", values=['Flotante 0','Flotante 1','Flotante 2','Flotante 3',
                                                                                                         'Flotante 4','Flotante 5','Flotante 6',
                                                                                                         'Flotante 7','Flotante 8','Flotante 9',
                                                                                                         'Flotante 10','Flotante 11','Flotante 12'])
@@ -913,7 +978,7 @@ class confg_graph(Tk):
         self.etq_color = Label(self.font_color, text="Color de trazo", fg= "black", font=("Arial", 12), width=5)
         self.etq_color.grid(row=0, column=0, sticky="nsew")
 
-        self.lab_color = Label(self.font_color, fg= "black", background=line_color, relief="raised", height=1)
+        self.lab_color = Label(self.font_color, fg= "black", background=line_color1, relief="raised", height=1)
         self.lab_color.grid(row=0, column=1, sticky="nsew", padx=2, pady=5)
 
         self.button_color = ttk.Button(self.font_color, text="Cambiar", style="button_style2.TButton", command=self.pick_color, width=2)

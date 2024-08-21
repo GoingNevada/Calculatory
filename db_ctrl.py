@@ -4,6 +4,7 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 from datetime import datetime   # OBTENER FECHA Y HORA ACTUAL
+import os
 
 # DIRECCION DE ARCHIVOS ADICIONALES
 key = "resources/graphic-calculator-db-firebase-adminsdk-i358v-5bc4f42f6f.json"
@@ -40,16 +41,21 @@ def user_edit(user, data):  # FUNCION UPDATE DE LA DB
     data = {datetime.now().strftime('%d-%m-%Y %H:%M'): data}    # FORMATEO DE DATOS CON CLAVE DE FECHA Y HORA
     user_ref.update(data)   # SE SUBE LA INFORMACION AL HISTORIAL DEL USUARIO CORRESPONDIENTE
 
+
 def user_delete(user, data):  # FUNCION DELETE DE LA DB
     pass
 
-def json_generator(user, data):
+def json_generator(user,path,data):
     # generamos un archivo
-    archivo = 'file.json'
     datos = {
         "user" : user,
         "fecha" : datetime.now().strftime('%d-%m-%Y %H:%M'),
         "historial" : data
     } 
-    with open(archivo, "w") as file:
+    with open(path + '.json', "w") as file:
         json.dump(datos, file, indent=4)
+
+def json_reader(json_file):
+    with open(json_file) as file:
+        datos = json.load(file)
+        return datos['historial']

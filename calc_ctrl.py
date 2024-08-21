@@ -40,12 +40,11 @@ formato = 'Normal'  # Formato de exponenciales Normal | Cientifico
 digitos = 6         # Cantidad de digitos decimales a mostrar
 
 def calc_config(data):
+    global digitos,angulo,formato
     digitos = data[0]
     angulo = data[1]
     formato = data[2]
 
-def graph_config():
-    pass
 
 def is_int(num):  # FUNCION PARA LA COMPROBACION DE CONVERSION DE UN NUMERO A ENTERO
     try:        # UTILIZAMOS UN TRY PARA INTENTAR REALIZAR LA CONVERSION
@@ -110,46 +109,44 @@ def entry(entr, tecla):    # ANALIZADOR DE SINTAXIS
     else:
         return 0, tecla # SI LA CADENA ESTA VACIA, SE RETORNA INDICE = 0 Y EL CARACTER
     
-def const_replace(entrada):
+def const_replace(entrada): # FUNCION PARA REEMPLAZAR LAS CONSTANTES PI Y EULER EN LA ECUACION
     if '\u03C0' in entrada:
         entrada = entrada.replace('\u03C0','pi')
-    if 'e' in entrada:
-        entrada = entrada.replace('e','E')
+    if '\u212E' in entrada:
+        entrada = entrada.replace('\u212E','E')
     return entrada
 
-def solver(entrada):
+def evaluate(entrada):
+    global digitos,angulo,formato
     if entrada:
         entrada = const_replace(entrada)
         expr = sp.sympify(entrada)
-        if 'x' not in str(expr):
-            return evaluate(expr)
-        else:
-            return graph(expr)
+        try:
+            res = str(expr.evalf())
+            if res == 'zoo':
+                raise ZeroDivisionError
+            else:
+                return round(conv_num(res),digitos)
+        except ZeroDivisionError:
+            messagebox.showerror(message=f"No es posible realizar una division por cero", title="Error de division")
+            return 'Indefinido'
+        except Exception as ex:
+            messagebox.showerror(message=f"Ecuación ingresada no valida, {type(ex)}", title="Error de ingreso")
+            return 'SyntaxError'
     else:
         messagebox.showerror(message="Por favor ingrese una ecuación valida", title="Error en ecuación")
-        return 'SyntaxError'
-
-def evaluate(entrada):
-    try:
-        res = str(entrada.evalf())
-        if res == 'zoo':
-            raise ZeroDivisionError
-        else:
-            return round(conv_num(res),6)
-    except ZeroDivisionError:
-        messagebox.showerror(message=f"No es posible realizar una division por cero", title="Error de division")
-        return 'Indefinido'
-    except Exception as ex:
-        messagebox.showerror(message=f"Ecuación ingresada no valida, {type(ex)}", title="Error de ingreso")
-        return 'SyntaxError'
+        return ''
+        
 
 def graph(entrada):
     x = sp.symbols('x')
+    entrada = const_replace(entrada)
+    expr = sp.sympify(entrada)
     x_values = np.linspace(-50, 50, 10000)
     y_values = []
     try:
         for val in x_values:
-            y = entrada.subs(x, val)
+            y = expr.subs(x, val)
             if type(y) != sp.core.numbers.Float:
                 y_values.append(None)
             else:
