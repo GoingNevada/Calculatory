@@ -2,6 +2,7 @@
 
 # IMPORTACION DE MODULOS 
 import tkinter as tk
+from random import choice
 from tkinter import ttk, messagebox, Label, Entry, Tk, Checkbutton, colorchooser, filedialog
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
@@ -43,8 +44,7 @@ ejes = "Ambos"
 xlim = [-10,10]
 ylim = [-10,10]
 line_color1 = "blue"
-line_color2 = "orange"
-line_color3 = "red"
+line_color = ["blue","orange","red","black","green"]
 
 name_dict = {
     "Ambos" : "both",
@@ -71,7 +71,6 @@ decim_dict = {
 }
 
 class Calculadora(tk.Tk):
-    i = 0
     def __init__(self, user): # CONSTRUCTOR DE LA CLASE
         super().__init__()  # FUNCION DE CLASE PARA EJECUTAR METODOS PADRE (TKINTER)
         self.title("Calculatory")   # NOMBRE DE LA APLICACION
@@ -87,7 +86,6 @@ class Calculadora(tk.Tk):
 
         #----------------VARIABLES GLOBALES DE DE LA CLASE--------------#
         self.entrada = ''
-        self.res = 0
         self.estado_aux = False
         self.usuario = user
         self.tema = ''
@@ -391,12 +389,14 @@ class Calculadora(tk.Tk):
         else:
             self.res = ecu
             self.state('zoomed')
-            self.columnconfigure(1, weight=15)
+            self.columnconfigure(1, weight=12)
+            self.rowconfigure(0, weight=1)
+            self.rowconfigure(1, weight=5)
             self.graficacion.grid(row=0, column=1, rowspan=2, sticky="nsew", padx=5, pady=5) # SE UBICA DENTRO DE LA VENTANA
 
             #--------------DUBUJADO DE LA FIGURA GENERADA-------------------------------#
             x_values = np.linspace(-50, 50, 1000) # GENERAMOS LA LISTA DE LOS PUNTOS EN X PARA F(X)
-            self.ax.plot(x_values, graph(self.res), label=ecu, color=line_color1) # DIBUJAMOS LA FIGURA
+            self.ax.plot(x_values, graph(self.res), label=ecu, color=choice(line_color)) # DIBUJAMOS LA FIGURA
             self.ax.grid(grid_draw, which=name_dict[lineas], axis=name_dict[ejes])  # SE ACTIVA LA GRILLA
             self.ax.axhline(0, color='black', lw=0.5)
             self.ax.axvline(0, color='black', lw=0.5)
@@ -443,7 +443,6 @@ class Calculadora(tk.Tk):
             data = json_reader(file)
             self.del_hist()
             historial = data
-            self.i = 0
             self.obtener_info()
 
     def syncr(self):
@@ -466,15 +465,17 @@ class Calculadora(tk.Tk):
 
     def cfg_graph(self):
         confg_graph().wait_window()
-        self.result()
+        self.ax.grid(grid_draw, which=name_dict[lineas], axis=name_dict[ejes])
+        self.ax.set_xlim([xlim[0], xlim[1]])
+        self.ax.set_ylim([ylim[0], ylim[1]])
+        self.canvas.draw()
 
     def obtener_info(self):
         print(historial)
         if len(historial)<=5:
             self.entrada_ecuacion.configure(values=historial)
         else:
-            self.i+=1
-            self.entrada_ecuacion.configure(values=historial[0+self.i:])
+            self.entrada_ecuacion.configure(values=historial[len(historial)-5:])
     
     def dark_theme(self):
         dark_style = ttk.Style()
