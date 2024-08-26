@@ -7,14 +7,25 @@ from datetime import datetime   # OBTENER FECHA Y HORA ACTUAL
 import os
 
 # DIRECCION DE ARCHIVOS ADICIONALES
-key = "resources/graphic-calculator-db-firebase-adminsdk-i358v-5bc4f42f6f.json"
-url = 'https://graphic-calculator-db-default-rtdb.firebaseio.com/'
+#key = "resources/graphic-calculator-db-firebase-adminsdk-i358v-5bc4f42f6f.json"
+#url = 'https://graphic-calculator-db-default-rtdb.firebaseio.com/'
+
+def key_exists():
+    if os.path.exists('./resources/key.json'):
+        return True
+    else:
+        return False
 
 def db_init():  # FUNCION DE INICIO DE LA DB
-    # CARGO EL CERTIFICADO .JSON DE LA BD
-    firebase_sdk = credentials.Certificate(key)
-    # Hacemos referencia a la base de datos en tiempo real de firebase
-    firebase_admin.initialize_app(firebase_sdk, {'databaseURL': url})
+    if key_exists():
+        key = json_reader('./resources/key.json', 'key')
+        url = json_reader('./resources/key.json', 'path')
+        print("si se pudo")
+        # CARGO EL CERTIFICADO .JSON DE LA BD
+        firebase_sdk = credentials.Certificate(key)
+        # Hacemos referencia a la base de datos en tiempo real de firebase
+        firebase_admin.initialize_app(firebase_sdk, {'databaseURL': url})
+
     
 def user_creator(email,password): # FUNCION CREATE DE LA DB
     user = email.split('@')
@@ -55,7 +66,7 @@ def json_generator(user,path,data):
     with open(path + '.json', "w") as file:
         json.dump(datos, file, indent=4)
 
-def json_reader(json_file):
+def json_reader(json_file, clave):
     with open(json_file) as file:
         datos = json.load(file)
-        return datos['historial']
+        return datos[clave]

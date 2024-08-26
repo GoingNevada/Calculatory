@@ -440,7 +440,7 @@ class Calculadora(tk.Tk):
         global historial
         file = filedialog.askopenfilename(initialdir = "/",title = "Seleccione archivo",filetypes = (("json files","*.json"),("todos los archivos","*.*")))
         if file !='':
-            data = json_reader(file)
+            data = json_reader(file, 'historial')
             self.del_hist()
             historial = data
             self.obtener_info()
@@ -639,9 +639,9 @@ class Login(tk.Tk):
 
         # BOTON DE OLVIDE CONTRASEÑA
         self.forg_pass = ttk.Button(self,
-                                    text="Olvide mi contraseña",
+                                    text="Acceso Administrador",
                                     style="button_style.TButton",
-                                    command=self.forg_passw)
+                                    command=self.admin_func)
         self.forg_pass.grid(row=3, column=0, sticky="e", padx=5, pady=[5,30])
 
         # BOTON DE INGRESAR
@@ -679,8 +679,9 @@ class Login(tk.Tk):
         except Exception:
             messagebox.showinfo("Problemas de acceso", "No se ha podido establecer la conexion con la base de datos, revise su conexion a internet")
 
-    def forg_passw(self):
-        pass
+    def admin_func(self):
+        self.destroy()
+        Admin()
 
     def reg_user(self):
         self.destroy()
@@ -759,6 +760,98 @@ class Form(Tk):
         self.destroy()
         Login()
 
+
+class Admin(Tk):
+    def __init__(self):
+        super().__init__()
+
+        # CONFIGURACION DE LA VENTANA Y SU ESTRUCTURA
+        self.title('Calculatory (Administrador)')
+        self.configure(bg="#3D85C6", padx=5)
+        self.resizable(False,False)
+
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
+        self.rowconfigure(2, weight=1)
+        self.rowconfigure(3, weight=1)
+        self.rowconfigure(4, weight=1)
+
+        # INGRESO DE DATOS DEL USUARIO
+        self.etq_user = Label(self, text="Usuario:", bg="#3D85C6", fg="black", font=("Arial", 12))
+        self.etq_user.grid(row=0, column=0, sticky="nsew", pady=[20,10])
+
+        self.etq_password = Label(self, text="Contraseña:", bg="#3D85C6", fg="black", font=("Arial", 12))
+        self.etq_password.grid(row=1, column=0, sticky="nsew", pady=[0,10])
+
+        self.etq_url = Label(self, text="Ingrese URL de la BD:", bg="#3D85C6", fg="black", font=("Arial", 12))
+        self.etq_key = Label(self, text="Cargar llave de acceso a BD:", bg="#3D85C6", fg="black", font=("Arial", 12))
+        
+        self.entry_user = Entry(self, font=("Arial", 12))
+        self.entry_user.grid(row=0,column=1, sticky="we", pady=[20,10])
+
+        self.entry_pass = Entry(self, font=("Arial", 12), show="*")
+        self.entry_pass.grid(row=1,column=1, sticky="we", pady=[0,10])
+
+        self.entry_url = Entry(self, font=("Arial", 12))    
+
+        # BOTONES DE AGREGAR Y REGRESAR
+        button_style = ttk.Style()
+        button_style.configure("button_style.TButton", background="#3D85C6", font=("Arial", 12))
+
+        self.entry_key = ttk.Button(self, text="Abrir", cursor="hand2", command=self.key_open, style="button_style.TButton")
+
+        self.entry_admin = ttk.Button(self, text="Abrir", cursor="hand2", command=self.ing_admin, style="button_style.TButton")
+
+        self.boton_ing = ttk.Button(self, text="Validar", cursor="hand2", command=self.validar, style="button_style.TButton")
+        self.boton_ing.grid(row=4, column=0, sticky="nsew", pady=[0, 10])
+
+        self.boton_reg= ttk.Button(self, text="Regresar", cursor="hand2", command=self.regresar, style="button_style.TButton")
+        self.boton_reg.grid(row=4, column=1, sticky="nsew", pady=[0, 10])
+
+
+    def validar(self):
+        if self.entry_user.get() == 'adm1n1str4d0r' and self.entry_pass.get() == '5461029':
+            self.etq_url.grid(row=2, column=0, sticky="nsew", pady=[0,10])
+            self.etq_key.grid(row=3, column=0, sticky="nsew", pady=[0,10])
+            self.entry_url.grid(row=2,column=1, sticky="we", pady=[0,10])
+            self.entry_key.grid(row=3,column=1, sticky="we", pady=[0,10])
+            self.boton_ing.destroy()
+            self.entry_admin.grid(row=4, column=0, sticky="nsew", pady=[0, 10])
+        else:
+            messagebox.showinfo(title="Error de ingreso", message="El usuario ingresado no coincide con el Admin registrado")
+            self.destroy()
+            Login()
+
+    def key_open(self):
+        file = filedialog.askopenfilename(initialdir = "./",title = "Seleccione archivo",filetypes = (("json files","*.json"),("todos los archivos","*.*")))
+        print(file)
+        if file !='':
+            self.key = file
+    
+    def ing_admin(self):
+        self.dir = self.entry_url.get()
+        self.key_generator(key=str(self.key), path=self.dir)
+        try:
+            db_init()
+            messagebox.showinfo(title="Vinculacion con BD", message="Se ha establecido un vinculo con la base de datos seleccionada")
+        except Exception:
+            messagebox.showerror(title="Error en vinculacion con BD", message="No se ha podido establecer una correcta vinculacion con la base de datos utilizada")
+        self.destroy()
+        Login()
+    
+    def key_generator(self, key, path):
+        datos = {
+            "key" : key,
+            "path" : path
+        } 
+        with open('./resources/key.json', "w") as file:
+            json.dump(datos, file, indent=4)
+
+    def regresar(self):
+        self.destroy()
+        Login()
 
 class confg_calc(Tk):
     def __init__(self):
