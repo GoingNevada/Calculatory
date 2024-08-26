@@ -74,11 +74,16 @@ class Calculadora(tk.Tk):
     i = 0
     def __init__(self, user): # CONSTRUCTOR DE LA CLASE
         super().__init__()  # FUNCION DE CLASE PARA EJECUTAR METODOS PADRE (TKINTER)
-        self.title("Calculadora")   # NOMBRE DE LA APLICACION
+        self.title("Calculatory")   # NOMBRE DE LA APLICACION
         self.iconbitmap(icono)      # ICONO DE LA APLICACION
         self.menubar = tk.Menu(self)    # CREACION DE UN MENU EN LA BARRA SUPERIOR
         self.configure(menu=self.menubar, background=fondo3)  # CONFIGURACION DE LA VENTANA
-        #self.geometry('370x352+78+78')
+        self.minsize(width=370,height=352)
+
+        self.columnconfigure(0, weight=1)   # DISTRIBUCION DE LA VENTANA
+        self.columnconfigure(1, weight=0)
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=1)
 
         #----------------VARIABLES GLOBALES DE DE LA CLASE--------------#
         self.entrada = ''
@@ -117,35 +122,30 @@ class Calculadora(tk.Tk):
         self.menubar.add_cascade(label="Tema", menu=self.theme)
         self.menubar.add_cascade(label="Ayuda", menu=self.helpmenu)
         
-        #------------CONFIGURACION DE LA DISTRIBUCION DE LA VENTANA-------------#
-        # NUMERO DE COLUMNAS CON SU PESO
-        self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=1)
-        self.columnconfigure(2, weight=1)
-        self.columnconfigure(3, weight=1)
-        self.columnconfigure(4, weight=1)
-        
-        # NUMERO DE FILAS CON SU PESO
-        self.rowconfigure(0, weight=1) # PARA GRAFICA WEIGHT=10
-        self.rowconfigure(1, weight=1)
-        self.rowconfigure(2, weight=1)
-        self.rowconfigure(3, weight=1)
-        self.rowconfigure(4, weight=1)
-        self.rowconfigure(5, weight=1)
-        self.rowconfigure(6, weight=1)
-        self.rowconfigure(7, weight=1)
-        self.rowconfigure(8, weight=1)
+        #-------------BLOQUE DE ENTRADA DE ECUACIONES--------------#
 
-        #----------Etiqueta y entrada para la ecuación-------------#
-        self.entrada_ecuacion = ttk.Combobox(self, font=('Arial', 18))
-        self.entrada_ecuacion.grid(row=0, column=0, sticky="nsew", columnspan=5, padx=5, pady=5)
+        self.FrameEcuaciones = tk.Frame(self)
+        self.FrameEcuaciones.grid(row=0, column=0, sticky="nsew")
 
-        #-------------BLOQUE DE SALIDA DE RESULTADOS--------------#
+        self.FrameEcuaciones.columnconfigure(0, weight=1)
+        self.FrameEcuaciones.rowconfigure(0, weight=1)
+        self.FrameEcuaciones.rowconfigure(1, weight=1)
+
+        self.entrada_ecuacion = ttk.Combobox(self.FrameEcuaciones, font=('Arial', 18))
+        self.entrada_ecuacion.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+
         self.ecuacion = tk.StringVar()
-        self.resultado = ttk.Label(self, textvariable=self.ecuacion, font=('Arial', 18))
-        self.resultado.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=5, pady=[0,5])
-        self.graficacion = tk.Canvas(self, width=50, height=50)
-        self.xecuaciones = tk.Frame(self, bg=fondo3)
+        self.resultado = ttk.Label(self.FrameEcuaciones, textvariable=self.ecuacion, font=('Arial', 18), justify='right')
+        self.resultado.grid(row=1, column=0, sticky="nsew", padx=5, pady=[0,5])
+
+        #-------------CONSTRUCCION DEL ESPACIO DE GRAFICACION-----------------------#
+        self.graficacion = tk.Canvas(self)
+        self.figura = Figure(figsize=(4, 3), dpi=100)   # SE AGREGA FIGURA AL CANVAS GENERADO
+        self.ax = self.figura.add_subplot(111)  # SE CONFIGURA LA DISPOSICION DE LA FIGURA DENTRO DEL CANVAS
+        self.canvas = FigureCanvasTkAgg(self.figura, master=self.graficacion)   
+        self.canvas.get_tk_widget().pack(side=tk.TOP, expand=1, fill=tk.BOTH)   # SE UBICA EN LA VENTANA
+        self.tlb = NavigationToolbar2Tk(self.canvas, self.graficacion)  # AGREGAMOS LAS OPCIONES DE FIGURA DENTRO DEL CANVAS
+        self.tlb.update()   # ACTUALIZAMOS LAS CONFIGURACIONES REALIZADAS
 
         #---------BLOQUE DE BOTONES CON FUNCIONALIDADES-------#
         estilo = ttk.Style()
@@ -159,141 +159,158 @@ class Calculadora(tk.Tk):
         pulse_button.configure("pulse_button.TButton", font="consolas 12 bold", background="#660000", relief="flat", foreground="#FFFFFF")
         pulse_button.map('pulse_button.TButton', background=[('active', '#990000')])
 
+        self.FrameTeclas =tk.Frame(self)
+        self.FrameTeclas.grid(row=1, column=0, sticky="nsew")
+
+        self.FrameTeclas.rowconfigure(0, weight=1)
+        self.FrameTeclas.rowconfigure(1, weight=1)
+        self.FrameTeclas.rowconfigure(2, weight=1)
+        self.FrameTeclas.rowconfigure(3, weight=1)
+        self.FrameTeclas.rowconfigure(4, weight=1)
+        self.FrameTeclas.rowconfigure(5, weight=1)
+        self.FrameTeclas.rowconfigure(6, weight=1)
+
+        self.FrameTeclas.columnconfigure(0, weight=1)
+        self.FrameTeclas.columnconfigure(1, weight=1)
+        self.FrameTeclas.columnconfigure(2, weight=1)
+        self.FrameTeclas.columnconfigure(3, weight=1)
+        self.FrameTeclas.columnconfigure(4, weight=1)
+
         # Boton de cambio
-        self.boton_change = ttk.Button(self, text=teclas[0][0], width=6, command=self.aux_button)
-        self.boton_change.grid(row=2, column=0, sticky="nsew", padx=2, pady=2)
+        self.boton_change = ttk.Button(self.FrameTeclas, text=teclas[0][0], width=6, command=self.aux_button)
+        self.boton_change.grid(row=0, column=0, sticky="nsew", padx=2, pady=2)
 
         # Botón de x
-        self.boton_x = ttk.Button(self, text=teclas[0][1], width=6, command=lambda: self.ing_teclado('x'))
-        self.boton_x.grid(row=2, column=1, sticky="nsew", padx=2, pady=2)
+        self.boton_x = ttk.Button(self.FrameTeclas, text=teclas[0][1], width=6, command=lambda: self.ing_teclado('x'))
+        self.boton_x.grid(row=0, column=1, sticky="nsew", padx=2, pady=2)
         
         # Botón de y
-        self.boton_y = ttk.Button(self, text=teclas[0][2], width=6, command=lambda: self.ing_teclado('y'))
-        self.boton_y.grid(row=2, column=2, sticky="nsew", padx=2, pady=2)
+        self.boton_y = ttk.Button(self.FrameTeclas, text=teclas[0][2], width=6, command=lambda: self.ing_teclado('y'))
+        self.boton_y.grid(row=0, column=2, sticky="nsew", padx=2, pady=2)
         
         # Botón de C
-        self.boton_c = ttk.Button(self, text=teclas[0][3], width=6, command=self.limpiar)
-        self.boton_c.grid(row=2, column=3, sticky="nsew", padx=2, pady=2)
+        self.boton_c = ttk.Button(self.FrameTeclas, text=teclas[0][3], width=6, command=self.limpiar)
+        self.boton_c.grid(row=0, column=3, sticky="nsew", padx=2, pady=2)
         
         # Botón de borrar
-        self.boton_limpiar = ttk.Button(self, text=teclas[0][4], width=6, command=self.borrar)
-        self.boton_limpiar.grid(row=2, column=4, sticky="nsew", padx=2, pady=2)
+        self.boton_limpiar = ttk.Button(self.FrameTeclas, text=teclas[0][4], width=6, command=self.borrar)
+        self.boton_limpiar.grid(row=0, column=4, sticky="nsew", padx=2, pady=2)
 
         # Botón de sin
-        self.boton_sin = ttk.Button(self, text=teclas[1][0], width=6, command=lambda: self.ing_teclado('sin('))
-        self.boton_sin.grid(row=3, column=0, sticky="nsew", padx=2, pady=2)
+        self.boton_sin = ttk.Button(self.FrameTeclas, text=teclas[1][0], width=6, command=lambda: self.ing_teclado('sin('))
+        self.boton_sin.grid(row=1, column=0, sticky="nsew", padx=2, pady=2)
         
         # Botón de cos
-        self.boton_cos = ttk.Button(self, text=teclas[1][1], width=6, command=lambda: self.ing_teclado('cos('))
-        self.boton_cos.grid(row=3, column=1, sticky="nsew", padx=2, pady=2)
+        self.boton_cos = ttk.Button(self.FrameTeclas, text=teclas[1][1], width=6, command=lambda: self.ing_teclado('cos('))
+        self.boton_cos.grid(row=1, column=1, sticky="nsew", padx=2, pady=2)
         
         # Botón de tan
-        self.boton_tan = ttk.Button(self, text=teclas[1][2], width=6, command=lambda: self.ing_teclado('tan('))
-        self.boton_tan.grid(row=3, column=2, sticky="nsew", padx=2, pady=2)
+        self.boton_tan = ttk.Button(self.FrameTeclas, text=teclas[1][2], width=6, command=lambda: self.ing_teclado('tan('))
+        self.boton_tan.grid(row=1, column=2, sticky="nsew", padx=2, pady=2)
         
         # Botón de ans
-        self.boton_ans = ttk.Button(self, text=teclas[1][3], width=6, command=self.ans)
-        self.boton_ans.grid(row=3, column=3, sticky="nsew", padx=2, pady=2)
+        self.boton_ans = ttk.Button(self.FrameTeclas, text=teclas[1][3], width=6, command=self.ans)
+        self.boton_ans.grid(row=1, column=3, sticky="nsew", padx=2, pady=2)
         
         # Botón de /
-        self.boton_division = ttk.Button(self, text=teclas[1][4], width=6, command=lambda: self.ing_teclado('/'))
-        self.boton_division.grid(row=3, column=4, sticky="nsew", padx=2, pady=2)
+        self.boton_division = ttk.Button(self.FrameTeclas, text=teclas[1][4], width=6, command=lambda: self.ing_teclado('/'))
+        self.boton_division.grid(row=1, column=4, sticky="nsew", padx=2, pady=2)
 
         # Botón de x^n
-        self.boton_potencia = ttk.Button(self, text=teclas[2][0], width=6, command=lambda: self.ing_teclado('^'))
-        self.boton_potencia.grid(row=4, column=0, sticky="nsew", padx=2, pady=2)
+        self.boton_potencia = ttk.Button(self.FrameTeclas, text=teclas[2][0], width=6, command=lambda: self.ing_teclado('^'))
+        self.boton_potencia.grid(row=2, column=0, sticky="nsew", padx=2, pady=2)
         
         # Botón de (
-        self.boton_apare = ttk.Button(self, text=teclas[2][1], width=6, command=lambda: self.ing_teclado('('))
-        self.boton_apare.grid(row=4, column=1, sticky="nsew", padx=2, pady=2)
+        self.boton_apare = ttk.Button(self.FrameTeclas, text=teclas[2][1], width=6, command=lambda: self.ing_teclado('('))
+        self.boton_apare.grid(row=2, column=1, sticky="nsew", padx=2, pady=2)
             
         # Botón de )
-        self.boton_cpare = ttk.Button(self, text=teclas[2][2], width=6, command=lambda: self.ing_teclado(')'))
-        self.boton_cpare.grid(row=4, column=2, sticky="nsew", padx=2, pady=2)
+        self.boton_cpare = ttk.Button(self.FrameTeclas, text=teclas[2][2], width=6, command=lambda: self.ing_teclado(')'))
+        self.boton_cpare.grid(row=2, column=2, sticky="nsew", padx=2, pady=2)
         
         # Botón de |x|
-        self.boton_abs = ttk.Button(self, text=teclas[2][3], width=6, command=lambda: self.ing_teclado('abs('))
-        self.boton_abs.grid(row=4, column=3, sticky="nsew", padx=2, pady=2)
+        self.boton_abs = ttk.Button(self.FrameTeclas, text=teclas[2][3], width=6, command=lambda: self.ing_teclado('abs('))
+        self.boton_abs.grid(row=2, column=3, sticky="nsew", padx=2, pady=2)
         
         # Botón de *
-        self.boton_multi = ttk.Button(self, text=teclas[2][4], width=6, command=lambda: self.ing_teclado('*'))
-        self.boton_multi.grid(row=4, column=4, sticky="nsew", padx=2, pady=2)
+        self.boton_multi = ttk.Button(self.FrameTeclas, text=teclas[2][4], width=6, command=lambda: self.ing_teclado('*'))
+        self.boton_multi.grid(row=2, column=4, sticky="nsew", padx=2, pady=2)
         
         # Botón de e
-        self.boton_e = ttk.Button(self, text=teclas[3][0], width=6, command=lambda: self.ing_teclado('\u212E'))
-        self.boton_e.grid(row=5, column=0, sticky="nsew", padx=2, pady=2)
+        self.boton_e = ttk.Button(self.FrameTeclas, text=teclas[3][0], width=6, command=lambda: self.ing_teclado('e'))
+        self.boton_e.grid(row=3, column=0, sticky="nsew", padx=2, pady=2)
         
         # Botón de 7
-        self.boton_7 = ttk.Button(self, text=teclas[3][1], width=6, command=lambda: self.ing_teclado('7'))
-        self.boton_7.grid(row=5, column=1, sticky="nsew", padx=2, pady=2)
+        self.boton_7 = ttk.Button(self.FrameTeclas, text=teclas[3][1], width=6, command=lambda: self.ing_teclado('7'))
+        self.boton_7.grid(row=3, column=1, sticky="nsew", padx=2, pady=2)
         
         # Botón de 8
-        self.boton_8 = ttk.Button(self, text=teclas[3][2], width=6, command=lambda: self.ing_teclado('8'))
-        self.boton_8.grid(row=5, column=2, sticky="nsew", padx=2, pady=2)
+        self.boton_8 = ttk.Button(self.FrameTeclas, text=teclas[3][2], width=6, command=lambda: self.ing_teclado('8'))
+        self.boton_8.grid(row=3, column=2, sticky="nsew", padx=2, pady=2)
         
         # Botón de 9
-        self.boton_9 = ttk.Button(self, text=teclas[3][3], width=6, command=lambda: self.ing_teclado('9'))
-        self.boton_9.grid(row=5, column=3, sticky="nsew", padx=2, pady=2)
+        self.boton_9 = ttk.Button(self.FrameTeclas, text=teclas[3][3], width=6, command=lambda: self.ing_teclado('9'))
+        self.boton_9.grid(row=3, column=3, sticky="nsew", padx=2, pady=2)
         
         # Botón de -
-        self.boton_resta = ttk.Button(self, text=teclas[3][4], width=6, command=lambda: self.ing_teclado('-'))
-        self.boton_resta.grid(row=5, column=4, sticky="nsew", padx=2, pady=2)
+        self.boton_resta = ttk.Button(self.FrameTeclas, text=teclas[3][4], width=6, command=lambda: self.ing_teclado('-'))
+        self.boton_resta.grid(row=3, column=4, sticky="nsew", padx=2, pady=2)
         
         # Botón de root
-        self.boton_root = ttk.Button(self, text=teclas[4][0], width=6, command=lambda: self.ing_teclado('root(x,i)'))
-        self.boton_root.grid(row=6, column=0, sticky="nsew", padx=2, pady=2)
+        self.boton_root = ttk.Button(self.FrameTeclas, text=teclas[4][0], width=6, command=lambda: self.ing_teclado('root(x,i)'))
+        self.boton_root.grid(row=4, column=0, sticky="nsew", padx=2, pady=2)
         
         # Botón de 4
-        self.boton_4 = ttk.Button(self, text=teclas[4][1], width=6, command=lambda: self.ing_teclado('4'))
-        self.boton_4.grid(row=6, column=1, sticky="nsew", padx=2, pady=2)
+        self.boton_4 = ttk.Button(self.FrameTeclas, text=teclas[4][1], width=6, command=lambda: self.ing_teclado('4'))
+        self.boton_4.grid(row=4, column=1, sticky="nsew", padx=2, pady=2)
         
         # Botón de 5
-        self.boton_5 = ttk.Button(self, text=teclas[4][2], width=6, command=lambda: self.ing_teclado('5'))
-        self.boton_5.grid(row=6, column=2, sticky="nsew", padx=2, pady=2)
+        self.boton_5 = ttk.Button(self.FrameTeclas, text=teclas[4][2], width=6, command=lambda: self.ing_teclado('5'))
+        self.boton_5.grid(row=4, column=2, sticky="nsew", padx=2, pady=2)
         
         # Botón de 6
-        self.boton_6 = ttk.Button(self, text=teclas[4][3], width=6, command=lambda: self.ing_teclado('6'))
-        self.boton_6.grid(row=6, column=3, sticky="nsew", padx=2, pady=2)
+        self.boton_6 = ttk.Button(self.FrameTeclas, text=teclas[4][3], width=6, command=lambda: self.ing_teclado('6'))
+        self.boton_6.grid(row=4, column=3, sticky="nsew", padx=2, pady=2)
         
         # Botón de +
-        self.boton_suma = ttk.Button(self, text=teclas[4][4], width=6, command=lambda: self.ing_teclado('+'))
-        self.boton_suma.grid(row=6, column=4, sticky="nsew", padx=2, pady=2)
+        self.boton_suma = ttk.Button(self.FrameTeclas, text=teclas[4][4], width=6, command=lambda: self.ing_teclado('+'))
+        self.boton_suma.grid(row=4, column=4, sticky="nsew", padx=2, pady=2)
         
         # Botón de log
-        self.boton_log = ttk.Button(self, text=teclas[5][0], width=6, command=lambda: self.ing_teclado('log(x,b)'))
-        self.boton_log.grid(row=7, column=0, sticky="nsew", padx=2, pady=2)
+        self.boton_log = ttk.Button(self.FrameTeclas, text=teclas[5][0], width=6, command=lambda: self.ing_teclado('log(x,b)'))
+        self.boton_log.grid(row=5, column=0, sticky="nsew", padx=2, pady=2)
         
         # Botón de 1
-        self.boton_1 = ttk.Button(self, text=teclas[5][1], width=6, command=lambda: self.ing_teclado('1'))
-        self.boton_1.grid(row=7, column=1, sticky="nsew", padx=2, pady=2)
+        self.boton_1 = ttk.Button(self.FrameTeclas, text=teclas[5][1], width=6, command=lambda: self.ing_teclado('1'))
+        self.boton_1.grid(row=5, column=1, sticky="nsew", padx=2, pady=2)
         
         # Botón de 2
-        self.boton_2 = ttk.Button(self, text=teclas[5][2], width=6, command=lambda: self.ing_teclado('2'))
-        self.boton_2.grid(row=7, column=2, sticky="nsew", padx=2, pady=2)
+        self.boton_2 = ttk.Button(self.FrameTeclas, text=teclas[5][2], width=6, command=lambda: self.ing_teclado('2'))
+        self.boton_2.grid(row=5, column=2, sticky="nsew", padx=2, pady=2)
         
         # Botón de 3
-        self.boton_3 = ttk.Button(self, text=teclas[5][3], width=6, command=lambda: self.ing_teclado('3'))
-        self.boton_3.grid(row=7, column=3, sticky="nsew", padx=2, pady=2)
+        self.boton_3 = ttk.Button(self.FrameTeclas, text=teclas[5][3], width=6, command=lambda: self.ing_teclado('3'))
+        self.boton_3.grid(row=5, column=3, sticky="nsew", padx=2, pady=2)
         
         # Botón de enter
-        self.boton_enter = ttk.Button(self, text=teclas[5][4], style="enter_button.TButton", width=6, command=self.result)
-        self.boton_enter.grid(row=7, column=4, sticky="nsew", rowspan=2, padx=2, pady=2)
+        self.boton_enter = ttk.Button(self.FrameTeclas, text=teclas[5][4], style="enter_button.TButton", width=6, command=self.result)
+        self.boton_enter.grid(row=5, column=4, sticky="nsew", rowspan=2, padx=2, pady=2)
         
         # Botón de ln
-        self.boton_ln = ttk.Button(self, text=teclas[6][0], width=6, command=lambda: self.ing_teclado('ln('))
-        self.boton_ln.grid(row=8, column=0, sticky="nsew", padx=2, pady=2)
+        self.boton_ln = ttk.Button(self.FrameTeclas, text=teclas[6][0], width=6, command=lambda: self.ing_teclado('ln('))
+        self.boton_ln.grid(row=6, column=0, sticky="nsew", padx=2, pady=2)
 
         # Botón de pi
-        self.boton_pi = ttk.Button(self, text=teclas[6][1], width=6, command=lambda: self.ing_teclado('\u03C0'))
-        self.boton_pi.grid(row=8, column=1, sticky="nsew", padx=2, pady=2)
+        self.boton_pi = ttk.Button(self.FrameTeclas, text=teclas[6][1], width=6, command=lambda: self.ing_teclado('\u03C0'))
+        self.boton_pi.grid(row=6, column=1, sticky="nsew", padx=2, pady=2)
         
         # Botón de 0
-        self.boton_0 = ttk.Button(self, text=teclas[6][2], width=6, command=lambda: self.ing_teclado('0'))
-        self.boton_0.grid(row=8, column=2, sticky="nsew", padx=2, pady=2)
+        self.boton_0 = ttk.Button(self.FrameTeclas, text=teclas[6][2], width=6, command=lambda: self.ing_teclado('0'))
+        self.boton_0.grid(row=6, column=2, sticky="nsew", padx=2, pady=2)
         
         # Botón de .
-        self.boton_negativo = ttk.Button(self, text=teclas[6][3], width=6, command=lambda: self.ing_teclado('.'))
-        self.boton_negativo.grid(row=8, column=3, sticky="nsew", padx=2, pady=2)
+        self.boton_negativo = ttk.Button(self.FrameTeclas, text=teclas[6][3], width=6, command=lambda: self.ing_teclado('.'))
+        self.boton_negativo.grid(row=6, column=3, sticky="nsew", padx=2, pady=2)
 
         self.btns_state = False  # ESTADO DEL BOTON ASOCIADO A CAMBIO
         self.light_theme() # CONFIGURACION EN MODO CLARO POR DEFECTO
@@ -312,7 +329,7 @@ class Calculadora(tk.Tk):
             self.boton_sec.configure(text='sec\u207b¹', command=lambda: self.ing_teclado('asec('), style=estilo)
             self.boton_cot.configure(text='cot\u207b¹', command=lambda: self.ing_teclado('acot('), style=estilo)
         else:
-            self.boton_arc.configure(style="light_button.TButton")
+            self.boton_arc.configure(style=estilo)
             self.boton_nsin.configure(text='sin', command=lambda: self.ing_teclado('sin('), style=estilo)
             self.boton_ncos.configure(text='cos', command=lambda: self.ing_teclado('cos('), style=estilo)
             self.boton_ntan.configure(text='tan', command=lambda: self.ing_teclado('tan('), style=estilo)
@@ -326,23 +343,23 @@ class Calculadora(tk.Tk):
         if self.estado_aux == True:
             self.boton_change.configure(style="pulse_button.TButton")
             # ---------BOTONES AUXILIARES----------------------#
-            self.boton_nsin = ttk.Button(self,text='sin', width=6, style=estilo, command=lambda: self.ing_teclado('sin('))
-            self.boton_ncos = ttk.Button(self,text='cos', width=6, style=estilo, command=lambda: self.ing_teclado('cos('))
-            self.boton_ntan = ttk.Button(self,text='tan', width=6, style=estilo, command=lambda: self.ing_teclado('tan('))
-            self.boton_csc =  ttk.Button(self,text='csc', width=6, style=estilo, command=lambda: self.ing_teclado('csc('))
-            self.boton_sec =  ttk.Button(self,text='sec', width=6, style=estilo, command=lambda: self.ing_teclado('sec('))
-            self.boton_cot =  ttk.Button(self,text='cot', width=6, style=estilo, command=lambda: self.ing_teclado('cot('))
-            self.boton_fac =  ttk.Button(self,text='!', width=6, style=estilo, command=lambda: self.ing_teclado('!'))
-            self.boton_arc =  ttk.Button(self,text='arc', width=6, style=estilo, command= self.chg_state)
+            self.boton_ncos = ttk.Button(self.FrameTeclas,text='cos', width=6, style=estilo, command=lambda: self.ing_teclado('cos('))
+            self.boton_ntan = ttk.Button(self.FrameTeclas,text='tan', width=6, style=estilo, command=lambda: self.ing_teclado('tan('))
+            self.boton_sec =  ttk.Button(self.FrameTeclas,text='sec', width=6, style=estilo, command=lambda: self.ing_teclado('sec('))
+            self.boton_nsin = ttk.Button(self.FrameTeclas,text='sin', width=6, style=estilo, command=lambda: self.ing_teclado('sin('))
+            self.boton_cot =  ttk.Button(self.FrameTeclas,text='cot', width=6, style=estilo, command=lambda: self.ing_teclado('cot('))
+            self.boton_fac =  ttk.Button(self.FrameTeclas,text='!', width=6, style=estilo, command=lambda: self.ing_teclado('!'))
+            self.boton_csc =  ttk.Button(self.FrameTeclas,text='csc', width=6, style=estilo, command=lambda: self.ing_teclado('csc('))
+            self.boton_arc =  ttk.Button(self.FrameTeclas,text='arc', width=6, style=estilo, command= self.chg_state)
             self.boton_arc.configure(style=estilo)
-            self.boton_nsin.grid(row=3, column=0, sticky="nsew", padx=2, pady=2)
-            self.boton_ncos.grid(row=3, column=1, sticky="nsew", padx=2, pady=2)
-            self.boton_ntan.grid(row=3, column=2, sticky="nsew", padx=2, pady=2)
-            self.boton_csc.grid(row=4, column=0, sticky="nsew", padx=2, pady=2)
-            self.boton_sec.grid(row=4, column=1, sticky="nsew", padx=2, pady=2)
-            self.boton_cot.grid(row=4, column=2, sticky="nsew", padx=2, pady=2)
-            self.boton_arc.grid(row=5, column=0, sticky="nsew", padx=2, pady=2)
-            self.boton_fac.grid(row=6, column=0, sticky="nsew", padx=2, pady=2)
+            self.boton_nsin.grid(row=1, column=0, sticky="nsew", padx=2, pady=2)
+            self.boton_ncos.grid(row=1, column=1, sticky="nsew", padx=2, pady=2)
+            self.boton_ntan.grid(row=1, column=2, sticky="nsew", padx=2, pady=2)
+            self.boton_csc.grid(row=2, column=0, sticky="nsew", padx=2, pady=2)
+            self.boton_sec.grid(row=2, column=1, sticky="nsew", padx=2, pady=2)
+            self.boton_cot.grid(row=2, column=2, sticky="nsew", padx=2, pady=2)
+            self.boton_arc.grid(row=3, column=0, sticky="nsew", padx=2, pady=2)
+            self.boton_fac.grid(row=4, column=0, sticky="nsew", padx=2, pady=2)
         else:
             self.boton_change.configure(style=estilo)
             self.boton_nsin.destroy()
@@ -363,73 +380,23 @@ class Calculadora(tk.Tk):
     def result(self):
         ecu = self.entrada_ecuacion.get().strip() # OBTENEMOS EL STRING EN ENTRADA Y ELIMINAMOS LOS ESPACIOS EN BLANCO
         if 'x' not in ecu:
-            res = evaluate(ecu)
-            self.graficacion.destroy()
-            self.xecuaciones.destroy()
-            self.columnconfigure(5, weight=0)
-            self.resultado = ttk.Label(self, textvariable=self.ecuacion, font=('Arial', 18), justify='left')
-            self.resultado.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=5, pady=[0,5])
-            self.ecuacion.set(res)
+            self.res = evaluate(ecu)
+            self.ax.clear()
+            self.graficacion.grid_remove()
+            self.columnconfigure(1, weight=0)
+            self.ecuacion.set(self.res)
             if self.entrada_ecuacion.get() not in historial:
                 historial.append(self.entrada_ecuacion.get())
             self.obtener_info()
-            self.res = res
         else:
             self.res = ecu
-            #-------------CONSTRUCCION DEL ESPACIO DE GRAFICACION-----------------------#
-            #self.resultado.destroy()    # DESTRUIMOS EL LABEL DE RESULTADOS
             self.state('zoomed')
-            self.columnconfigure(5, weight=15)
-            self.resultado.destroy()
-            self.graficacion.destroy() # DESTRUIMOS EL LABEL DE GRAFICACION POR SI EXISTE UNO ANTERIORMENTE CREADO
-            self.xecuaciones.destroy()
-            #self.entrada_ecuacion.destroy()
-
-            self.xecuaciones = tk.Frame(self, bg=fondo3)
-            self.xecuaciones.grid(row=0, column=0, sticky="nsew", pady=[0,5], columnspan=5, rowspan=2)
-            self.xecuaciones.rowconfigure(0, weight=1)
-            self.xecuaciones.rowconfigure(1, weight=1)
-            self.xecuaciones.rowconfigure(2, weight=1)
-            self.xecuaciones.columnconfigure(0, weight=3)
-            self.xecuaciones.columnconfigure(1, weight=3)
-
-            self.etiq_ecuacion1 = tk.Label(self.xecuaciones, text="F1", bg=line_color1, fg="black", font=('Harlow Solid Italic', 12))
-            self.etiq_ecuacion1.grid(row=0, column=0, sticky="nsew", padx=5, pady=[10,5])
-            self.entrada_ecuacion = ttk.Combobox(self.xecuaciones, font=('Arial', 18))
-            self.entrada_ecuacion.grid(row=0, column=1, sticky="nsew", padx=[0,5], pady=[10,5])
-            self.entrada_ecuacion.set(ecu)
-
-            self.ecuacionvar2 = tk.StringVar()
-            self.etiq_ecuacion2 = tk.Label(self.xecuaciones, text="F2", bg=line_color2, fg="black", font=('Harlow Solid Italic', 12))
-            self.etiq_ecuacion2.grid(row=1, column=0, sticky="nsew", padx=5, pady=[0,5])
-            self.ecuacion2 = ttk.Entry(self.xecuaciones, font=('Arial', 18), justify='left', textvariable=self.ecuacionvar2)
-            self.ecuacion2.grid(row=1, column=1, sticky="nsew", padx=[0,5], pady=[0,5])
-
-            self.etiq_ecuacion3 = tk.Label(self.xecuaciones, text="F3", bg=line_color3, fg="black", font=('Harlow Solid Italic', 12))
-            self.etiq_ecuacion3.grid(row=2, column=0, sticky="nsew", padx=5, pady=[0,5])
-            self.ecuacion3 = ttk.Entry(self.xecuaciones, font=('Arial', 18), justify='left')
-            self.ecuacion3.grid(row=2, column=1, sticky="nsew", padx=[0,5], pady=[0,5])
-
-            ecu2 = self.ecuacion2.get().strip()
-            self.ecuacionvar2.set(ecu2)
-            ecu3 = self.ecuacion2.get().strip()
-            
-            self.graficacion = tk.Canvas(self, width=100, height=100) # CONTRUIMOS EL ESPACIO PARA LA FIGURA A GENERAR
-            self.graficacion.grid(row=0, column=5, rowspan=9, sticky="nsew", padx=5, pady=5) # SE UBICA DENTRO DE LA VENTANA
-            self.figura = Figure(figsize=(4, 3), dpi=100)   # SE AGREGA FIGURA AL CANVAS GENERADO
-            self.ax = self.figura.add_subplot(111)  # SE CONFIGURA LA DISPOSICION DE LA FIGURA DENTRO DEL CANVAS
-            self.canvas = FigureCanvasTkAgg(self.figura, master=self.graficacion)   
-            self.canvas.get_tk_widget().pack(side=tk.TOP, expand=1, fill=tk.BOTH)   # SE UBICA EN LA VENTANA
-            self.tlb = NavigationToolbar2Tk(self.canvas, self.graficacion)  # AGREGAMOS LAS OPCIONES DE FIGURA DENTRO DEL CANVAS
-            self.tlb.update()   # ACTUALIZAMOS LAS CONFIGURACIONES REALIZADAS
+            self.columnconfigure(1, weight=15)
+            self.graficacion.grid(row=0, column=1, rowspan=2, sticky="nsew", padx=5, pady=5) # SE UBICA DENTRO DE LA VENTANA
 
             #--------------DUBUJADO DE LA FIGURA GENERADA-------------------------------#
-            x_values = np.linspace(-50, 50, 10000) # GENERAMOS LA LISTA DE LOS PUNTOS EN X PARA F(X)
-            self.ax.plot(x_values, graph(ecu), color=line_color1) # DIBUJAMOS LA FIGURA
-            if ecu2:
-                self.ax.plot(x_values, graph(ecu2), color=line_color2)
-            if ecu3:
-                self.ax.plot(x_values, graph(ecu3), color=line_color3)
+            x_values = np.linspace(-50, 50, 1000) # GENERAMOS LA LISTA DE LOS PUNTOS EN X PARA F(X)
+            self.ax.plot(x_values, graph(self.res), label=ecu, color=line_color1) # DIBUJAMOS LA FIGURA
             self.ax.grid(grid_draw, which=name_dict[lineas], axis=name_dict[ejes])  # SE ACTIVA LA GRILLA
             self.ax.axhline(0, color='black', lw=0.5)
             self.ax.axvline(0, color='black', lw=0.5)
@@ -437,10 +404,10 @@ class Calculadora(tk.Tk):
             self.ax.spines[["top", "right"]].set_visible(False)
             self.ax.set_xlim([xlim[0], xlim[1]])
             self.ax.set_ylim([ylim[0], ylim[1]])
+            self.ax.legend()
             #self.ax.set_xticks(range(int(xlim[0]), int(xlim[1])+1, 1))
             #self.ax.set_yticks(range(int(ylim[0]), int(ylim[1])+1, 1))
             #self.ax.set_adjustable('datalim')
-            
             self.canvas.draw()
             if self.entrada_ecuacion.get() not in historial:
                 historial.append(self.entrada_ecuacion.get())
@@ -453,14 +420,11 @@ class Calculadora(tk.Tk):
     
     def limpiar(self):
         self.entrada_ecuacion.delete(0, tk.END)
-        self.graficacion.destroy()
-        self.xecuaciones.destroy()
-        self.columnconfigure(5, weight=0)
+        self.graficacion.grid_remove()
+        self.columnconfigure(1, weight=0)
+        self.ax.clear()
         self.ecuacion.set('')
-        self.entrada_ecuacion = ttk.Combobox(self, font=('Arial', 18))
-        self.entrada_ecuacion.grid(row=0, column=0, sticky="nsew", columnspan=5, padx=5, pady=5)
-        self.resultado = ttk.Label(self, textvariable=self.ecuacion, font=('Arial', 18))
-        self.resultado.grid(row=1, column=0, columnspan=5, sticky="nsew", padx=5, pady=[0,5])
+        self.entrada_ecuacion.set('')
 
     def borrar(self):
         self.entrada = self.entrada_ecuacion.get()
@@ -525,6 +489,9 @@ class Calculadora(tk.Tk):
         oper_button.configure("oper_button.TButton", font="consolas 12 bold", background="#000000", relief="flat", foreground="#34A853")
         oper_button.map('oper_button.TButton', background=[('active', '#262626')])
 
+        self.FrameEcuaciones.configure(bg=fondo3)
+        self.FrameTeclas.configure(bg=fondo3)
+
         self.boton_change.configure(style="dark_button.TButton")
         self.boton_x.configure(style="dark_button.TButton")
         self.boton_y.configure(style="dark_button.TButton")
@@ -563,6 +530,9 @@ class Calculadora(tk.Tk):
             self.aux_button()
 
     def light_theme(self):
+
+        self.FrameEcuaciones.configure(bg='#FFFFFF')
+        self.FrameTeclas.configure(bg='#FFFFFF')
 
         light_style = ttk.Style()
         light_style.configure("light_button.TButton", font="consolas 12 bold", background="#ECEBDD", relief="flat", foreground="#000000")
@@ -614,7 +584,7 @@ class Login(tk.Tk):
         super().__init__()  # LA FUNCION SUPER() SIRVE PARA UTILIZAR METODOS DE LA CLASE PADRE, EN ESTE CASO DE LA CLASE Tk 
 
         # CONFIGURACION DE LA VENTANA Y SU ESTRUCTURA
-        self.title('Calculadora (Login)')
+        self.title('Calculatory (Login)')
         self.iconbitmap(icono)
         self.configure(bg=fondo, padx=5)
         self.resizable(False,False)
@@ -724,7 +694,7 @@ class Form(Tk):
         super().__init__()
 
         # CONFIGURACION DE LA VENTANA Y SU ESTRUCTURA
-        self.title('Calculadora (Registro)')
+        self.title('Calculatory (Registro)')
         self.iconbitmap(icono)
         self.configure(bg=fondo2, padx=5)
         self.resizable(False,False)

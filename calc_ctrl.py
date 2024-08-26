@@ -31,7 +31,7 @@ teclas = [ ['\u21C4','x','y','C','\u232B'],
            [ 'log', '1', '2','3','\u21B5'],
            ['ln' ,'\u03C0' ,'0' ,'.' ,'_']]
 
-numeros = ['0','1','2','3','4','5','6','7','8','9']
+numeros = ['0','1','2','3','4','5','6','7','8','9','x']
 signos = ['+','-','/','*','^']
 
 # CONFIGURACION POR DEFECTO
@@ -44,7 +44,6 @@ def calc_config(data):
     digitos = data[0]
     angulo = data[1]
     formato = data[2]
-
 
 def is_int(num):  # FUNCION PARA LA COMPROBACION DE CONVERSION DE UN NUMERO A ENTERO
     try:        # UTILIZAMOS UN TRY PARA INTENTAR REALIZAR LA CONVERSION
@@ -96,43 +95,47 @@ def entry(entr, tecla):    # ANALIZADOR DE SINTAXIS
                 return ind, '0.'
             else:                   
                 return ind, '*0.'   # SI NO, ENTONCES SE RETRONA INDICE Y SE AGREGA '*0' AL CARACTER (*0.)
+        elif tecla==')':
+            return ind, tecla
+        elif tecla in ['\u03C0','\u212E']:
+            if entr[ind-1] in [signos,numeros,',','(']:   # PREGUNTAMOS SI ANTERIORMENTE EXISTE UN SIGNO 
+                return ind, tecla       # SI EXISTE, ENTONCES SOLO SE RETORNA INDICE Y EL CARACTER (+ sin(45))
+            else:                       
+                return ind, '*' + tecla  # SI NO, ENTONCES SE RETORNA EL INDICE Y "* + EL CARACTER"  (* sin(45))
         else:
             if entr[ind-1] in signos:   # PREGUNTAMOS SI ANTERIORMENTE EXISTE UN SIGNO 
                 return ind, tecla       # SI EXISTE, ENTONCES SOLO SE RETORNA INDICE Y EL CARACTER (+ sin(45))
             else:                       
                 return ind, '*' + tecla  # SI NO, ENTONCES SE RETORNA EL INDICE Y "* + EL CARACTER"  (* sin(45))
-    elif tecla in ['/','*','^','+','%']:
+    elif tecla in ['/','*','^','+']:
         messagebox.showerror(message="Formato invalido", title="Error de sintaxis")
         return -1,''
     elif tecla=='.':
         return 0, '0.'
     else:
         return 0, tecla # SI LA CADENA ESTA VACIA, SE RETORNA INDICE = 0 Y EL CARACTER
-    
-def const_replace(entrada): # FUNCION PARA REEMPLAZAR LAS CONSTANTES PI Y EULER EN LA ECUACION
-    if '\u03C0' in entrada:
-        entrada = entrada.replace('\u03C0','pi')
-    if '\u212E' in entrada:
-        entrada = entrada.replace('\u212E','E')
-    return entrada
 
 def evaluate(entrada):
     global digitos,angulo,formato
     if entrada:
-        entrada = const_replace(entrada)
         expr = sp.sympify(entrada)
         try:
-            res = str(expr.evalf())
-            if res == 'zoo':
+            res = expr.evalf(subs={'e':'E','\u03C0':'pi'})
+            if type(res) == sp.core.numbers.ComplexInfinity:
                 raise ZeroDivisionError
+            elif formato == 'Científico':
+                return "{:.4E}".format(res)
             else:
-                return round(conv_num(res),digitos)
+                return round(conv_num(str(res)),digitos)
         except ZeroDivisionError:
-            messagebox.showerror(message=f"No es posible realizar una division por cero", title="Error de division")
+            messagebox.showerror(message=f"No es posible realizar una division por cero", title="Error en division")
             return 'Indefinido'
-        except Exception as ex:
+        except ValueError as ex:
             messagebox.showerror(message=f"Ecuación ingresada no valida, {type(ex)}", title="Error de ingreso")
             return 'SyntaxError'
+        except Exception as ex:
+            messagebox.showerror(message=f"Entrada ingresada no valida, {type(ex)}", title="Error de ingreso")
+            return ''
     else:
         messagebox.showerror(message="Por favor ingrese una ecuación valida", title="Error en ecuación")
         return ''
@@ -140,13 +143,12 @@ def evaluate(entrada):
 
 def graph(entrada):
     x = sp.symbols('x')
-    entrada = const_replace(entrada)
     expr = sp.sympify(entrada)
-    x_values = np.linspace(-50, 50, 10000)
+    x_values = np.linspace(-50, 50, 1000)
     y_values = []
     try:
         for val in x_values:
-            y = expr.subs(x, val)
+            y = expr.subs(x, val).evalf(subs={'e':'E','\u03C0':'pi'})
             if type(y) != sp.core.numbers.Float:
                 y_values.append(None)
             else:
