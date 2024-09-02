@@ -12,7 +12,7 @@ Calculatory es una aplicación de escritorio, diseñada para realizar calculos m
 
 ## Authors
 
-- [@octokatherine](https://github.com/GoingNevada)
+- [@GoingNevada](https://github.com/GoingNevada)
 
 
 ## Documentation
