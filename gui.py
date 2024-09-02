@@ -111,9 +111,7 @@ class Calculadora(tk.Tk):
         self.theme.add_radiobutton(label="Oscuro", variable=self.tema_sel, value=2, command=self.dark_theme)
 
         self.helpmenu = tk.Menu(self.menubar, tearoff=0)
-        self.helpmenu.add_command(label="Ayuda")
-        self.helpmenu.add_separator()
-        self.helpmenu.add_command(label="Acerca de...")
+        self.helpmenu.add_command(label="Acerca de...", command=self.link_clicked)
 
         self.menubar.add_cascade(label="Archivo", menu=self.filemenu)
         self.menubar.add_cascade(label="Opciones", menu=self.editmenu)
@@ -586,6 +584,10 @@ class Calculadora(tk.Tk):
 
         if self.estado_aux:
             self.aux_button()
+
+    def link_clicked(self):
+        import webbrowser
+        webbrowser.open("https://github.com/GoingNevada/Calculatory.git")
 
 class Login(tk.Tk):
     def __init__(self):
