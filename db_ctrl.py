@@ -6,9 +6,6 @@ from firebase_admin import db
 from datetime import datetime   # OBTENER FECHA Y HORA ACTUAL
 import os
 
-# DIRECCION DE ARCHIVOS ADICIONALES
-#key = "resources/graphic-calculator-db-firebase-adminsdk-i358v-5bc4f42f6f.json"
-#url = 'https://graphic-calculator-db-default-rtdb.firebaseio.com/'
 
 def key_exists():
     if os.path.exists('./resources/key.json'):
@@ -17,14 +14,13 @@ def key_exists():
         return False
 
 def db_init():  # FUNCION DE INICIO DE LA DB
-    if key_exists():
-        key = json_reader('./resources/key.json', 'key')
-        url = json_reader('./resources/key.json', 'path')
-        print("si se pudo")
-        # CARGO EL CERTIFICADO .JSON DE LA BD
-        firebase_sdk = credentials.Certificate(key)
-        # Hacemos referencia a la base de datos en tiempo real de firebase
-        firebase_admin.initialize_app(firebase_sdk, {'databaseURL': url})
+    key = json_reader('./resources/key.json', 'key')
+    url = json_reader('./resources/key.json', 'path')
+    print("si se pudo")
+    # CARGO EL CERTIFICADO .JSON DE LA BD
+    firebase_sdk = credentials.Certificate(key)
+    # Hacemos referencia a la base de datos en tiempo real de firebase
+    firebase_admin.initialize_app(firebase_sdk, {'databaseURL': url})
 
     
 def user_creator(email,password): # FUNCION CREATE DE LA DB

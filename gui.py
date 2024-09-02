@@ -16,7 +16,7 @@ icono = "resources/icono.ico"  # IMAGEN DE ICONO
 img_login = "resources/login.png"  # IMAGEN DE LOGIN
 
 # INICIALIZACIONES PRIORITARIAS
-db_init()
+acceso = False
 
 # COLORES PREDETERMINADOS DE LA APLICACION
 fondo = "#3D85C6"   # FONDO PARA LOGIN
@@ -383,35 +383,39 @@ class Calculadora(tk.Tk):
             self.graficacion.grid_remove()
             self.columnconfigure(1, weight=0)
             self.ecuacion.set(self.res)
-            if self.entrada_ecuacion.get() not in historial:
+            if (self.entrada_ecuacion.get() not in historial) and (is_number(self.res)):
                 historial.append(self.entrada_ecuacion.get())
             self.obtener_info()
         else:
-            self.res = ecu
-            self.state('zoomed')
-            self.columnconfigure(1, weight=12)
-            self.rowconfigure(0, weight=1)
-            self.rowconfigure(1, weight=5)
-            self.graficacion.grid(row=0, column=1, rowspan=2, sticky="nsew", padx=5, pady=5) # SE UBICA DENTRO DE LA VENTANA
+            y = graph(ecu)
+            if type(y) == np.ndarray:
+                self.res = ecu
+                self.state('zoomed')
+                self.columnconfigure(1, weight=12)
+                self.rowconfigure(0, weight=1)
+                self.rowconfigure(1, weight=5)
+                self.graficacion.grid(row=0, column=1, rowspan=2, sticky="nsew", padx=5, pady=5) # SE UBICA DENTRO DE LA VENTANA
 
-            #--------------DUBUJADO DE LA FIGURA GENERADA-------------------------------#
-            x_values = np.linspace(-50, 50, 1000) # GENERAMOS LA LISTA DE LOS PUNTOS EN X PARA F(X)
-            self.ax.plot(x_values, graph(self.res), label=ecu, color=choice(line_color)) # DIBUJAMOS LA FIGURA
-            self.ax.grid(grid_draw, which=name_dict[lineas], axis=name_dict[ejes])  # SE ACTIVA LA GRILLA
-            self.ax.axhline(0, color='black', lw=0.5)
-            self.ax.axvline(0, color='black', lw=0.5)
-            self.ax.spines[["left", "bottom"]].set_position(("data", 0))
-            self.ax.spines[["top", "right"]].set_visible(False)
-            self.ax.set_xlim([xlim[0], xlim[1]])
-            self.ax.set_ylim([ylim[0], ylim[1]])
-            self.ax.legend()
-            #self.ax.set_xticks(range(int(xlim[0]), int(xlim[1])+1, 1))
-            #self.ax.set_yticks(range(int(ylim[0]), int(ylim[1])+1, 1))
-            #self.ax.set_adjustable('datalim')
-            self.canvas.draw()
-            if self.entrada_ecuacion.get() not in historial:
-                historial.append(self.entrada_ecuacion.get())
-            self.obtener_info()
+                #--------------DUBUJADO DE LA FIGURA GENERADA-------------------------------#
+                x_values = np.linspace(-50, 50, 1000) # GENERAMOS LA LISTA DE LOS PUNTOS EN X PARA F(X)
+                self.ax.plot(x_values, y, label=ecu, color=choice(line_color)) # DIBUJAMOS LA FIGURA
+                self.ax.grid(grid_draw, which=name_dict[lineas], axis=name_dict[ejes])  # SE ACTIVA LA GRILLA
+                self.ax.axhline(0, color='black', lw=0.5)
+                self.ax.axvline(0, color='black', lw=0.5)
+                self.ax.spines[["left", "bottom"]].set_position(("data", 0))
+                self.ax.spines[["top", "right"]].set_visible(False)
+                self.ax.set_xlim([xlim[0], xlim[1]])
+                self.ax.set_ylim([ylim[0], ylim[1]])
+                self.ax.legend()
+                #self.ax.set_xticks(range(int(xlim[0]), int(xlim[1])+1, 1))
+                #self.ax.set_yticks(range(int(ylim[0]), int(ylim[1])+1, 1))
+                #self.ax.set_adjustable('datalim')
+                self.canvas.draw()
+                if self.entrada_ecuacion.get() not in historial:
+                    historial.append(self.entrada_ecuacion.get())
+                self.obtener_info()
+            else:
+                self.ecuacion.set(y)
 
     def ans(self):
         ind, tecla = entry(self.entrada_ecuacion.get(),str(self.res))   # LLAMADO A LA FUNCION ENTRY, RETORNA INDICE Y CARACTER A POSTEAR
@@ -434,7 +438,10 @@ class Calculadora(tk.Tk):
     def guardar(self):
         user = self.usuario.split('@') # OBTENEMOS EL USUARIO DEL EMAIL INGRESADO
         nombrearch=filedialog.asksaveasfilename(initialdir = "/",title = "Guardar como",filetypes = (("json files","*.json"),("todos los archivos","*.*")))
-        json_generator(user[0], str(nombrearch), historial)
+        if nombrearch == '':
+            pass
+        else:
+            json_generator(user[0], str(nombrearch), historial)
 
     def file_open(self):
         global historial
@@ -583,7 +590,7 @@ class Calculadora(tk.Tk):
 class Login(tk.Tk):
     def __init__(self):
         super().__init__()  # LA FUNCION SUPER() SIRVE PARA UTILIZAR METODOS DE LA CLASE PADRE, EN ESTE CASO DE LA CLASE Tk 
-
+        global acceso
         # CONFIGURACION DE LA VENTANA Y SU ESTRUCTURA
         self.title('Calculatory (Login)')
         self.iconbitmap(icono)
@@ -642,14 +649,14 @@ class Login(tk.Tk):
                                     text="Acceso Administrador",
                                     style="button_style.TButton",
                                     command=self.admin_func)
-        self.forg_pass.grid(row=3, column=0, sticky="e", padx=5, pady=[5,30])
+        self.forg_pass.grid(row=3, column=0, sticky="e", padx=5, pady=[5,5])
 
         # BOTON DE INGRESAR
         self.ing_button = ttk.Button(self,
                                     text="Ingresar",
                                     style="button_style.TButton",
                                     command=self.entrar)
-        self.ing_button.grid(row=3, column=1, sticky="we", padx=5, pady=[5,30])
+        self.ing_button.grid(row=3, column=1, sticky="we", padx=5, pady=[5,5])
 
         # BOTON DE REGISTRARSE
         self.reg_button = ttk.Button(self,
@@ -665,6 +672,21 @@ class Login(tk.Tk):
                                     command=self.inv_entrar)
         self.invitado.grid(row=4, column=1, sticky="we", padx=5, pady=5)
 
+        print(acceso)
+        if acceso == False:
+            self.bd_conexion()
+    
+    def bd_conexion(self):
+        global acceso
+        try:
+            if key_exists():
+                db_init()
+                acceso = True
+            else:
+                acceso = False
+                messagebox.showerror(title="Error en vinculacion con BD (Admin)", message="No se ha proporcionado la informacion de vinculacion con la base de datos")
+        except Exception:
+            messagebox.showerror(title="Error en vinculacion con BD (Admin)", message="No se ha podido establecer una correcta vinculacion con la base de datos utilizada")
 
     def entrar(self):
         user = self.entry_user.get()
@@ -744,15 +766,18 @@ class Form(Tk):
         email = self.entry_email.get()
         password = self.entry_pass1.get()
         try:
-            if password == self.entry_pass2.get():
-                if user_creator(email, password): 
-                    messagebox.showinfo("Registro de usuario", f"Se ha registrado al usuario {email}, exitosamente")
-                    self.destroy()
-                    Login()
+            if email != '' and password != '':
+                if password == self.entry_pass2.get():
+                    if user_creator(email, password): 
+                        messagebox.showinfo("Registro de usuario", f"Se ha registrado al usuario {email}, exitosamente")
+                        self.destroy()
+                        Login()
+                    else:
+                        messagebox.showerror("Registro de usuario", "No se pudo registrar al usuario")
                 else:
-                    messagebox.showerror("Registro de usuario", "No se pudo registrar al usuario")
+                    messagebox.showinfo("Registro de usuario", "Las contraseñas no coinciden")
             else:
-                messagebox.showinfo("Registro de usuario", "Las contraseñas no coinciden")
+                messagebox.showerror("Registro de usuario", "Ingrese la informacion completa")
         except Exception:
             messagebox.showinfo("Problemas de acceso", "No se ha podido registrar el usuario, revise su conexion a internet")
 
@@ -767,6 +792,7 @@ class Admin(Tk):
 
         # CONFIGURACION DE LA VENTANA Y SU ESTRUCTURA
         self.title('Calculatory (Administrador)')
+        self.iconbitmap(icono)
         self.configure(bg="#3D85C6", padx=5)
         self.resizable(False,False)
 
@@ -780,19 +806,21 @@ class Admin(Tk):
 
         # INGRESO DE DATOS DEL USUARIO
         self.etq_user = Label(self, text="Usuario:", bg="#3D85C6", fg="black", font=("Arial", 12))
-        self.etq_user.grid(row=0, column=0, sticky="nsew", pady=[20,10])
+        self.etq_user.grid(row=0, column=0, sticky="nsew", pady=[20,10], padx=5)
 
         self.etq_password = Label(self, text="Contraseña:", bg="#3D85C6", fg="black", font=("Arial", 12))
-        self.etq_password.grid(row=1, column=0, sticky="nsew", pady=[0,10])
+        self.etq_password.grid(row=1, column=0, sticky="nsew", pady=[0,10], padx=5)
 
         self.etq_url = Label(self, text="Ingrese URL de la BD:", bg="#3D85C6", fg="black", font=("Arial", 12))
-        self.etq_key = Label(self, text="Cargar llave de acceso a BD:", bg="#3D85C6", fg="black", font=("Arial", 12))
+
+        self.dir_key = tk.StringVar()
+        self.etq_key = Label(self, textvariable=self.dir_key, bg="#FFFFFF", fg="black", font=("Arial", 12), width=6)
         
         self.entry_user = Entry(self, font=("Arial", 12))
-        self.entry_user.grid(row=0,column=1, sticky="we", pady=[20,10])
+        self.entry_user.grid(row=0,column=1, sticky="we", pady=[20,10], padx=5)
 
         self.entry_pass = Entry(self, font=("Arial", 12), show="*")
-        self.entry_pass.grid(row=1,column=1, sticky="we", pady=[0,10])
+        self.entry_pass.grid(row=1,column=1, sticky="we", pady=[0,10], padx=5)
 
         self.entry_url = Entry(self, font=("Arial", 12))    
 
@@ -800,25 +828,25 @@ class Admin(Tk):
         button_style = ttk.Style()
         button_style.configure("button_style.TButton", background="#3D85C6", font=("Arial", 12))
 
-        self.entry_key = ttk.Button(self, text="Abrir", cursor="hand2", command=self.key_open, style="button_style.TButton")
+        self.entry_key = ttk.Button(self, text="Cargar llave de acceso", cursor="hand2", command=self.key_open, style="button_style.TButton")
 
         self.entry_admin = ttk.Button(self, text="Abrir", cursor="hand2", command=self.ing_admin, style="button_style.TButton")
 
         self.boton_ing = ttk.Button(self, text="Validar", cursor="hand2", command=self.validar, style="button_style.TButton")
-        self.boton_ing.grid(row=4, column=0, sticky="nsew", pady=[0, 10])
+        self.boton_ing.grid(row=4, column=0, sticky="nsew", pady=[0, 10], padx=5)
 
         self.boton_reg= ttk.Button(self, text="Regresar", cursor="hand2", command=self.regresar, style="button_style.TButton")
-        self.boton_reg.grid(row=4, column=1, sticky="nsew", pady=[0, 10])
+        self.boton_reg.grid(row=4, column=1, sticky="nsew", pady=[0, 10], padx=5)
 
 
     def validar(self):
-        if self.entry_user.get() == 'adm1n1str4d0r' and self.entry_pass.get() == '5461029':
-            self.etq_url.grid(row=2, column=0, sticky="nsew", pady=[0,10])
-            self.etq_key.grid(row=3, column=0, sticky="nsew", pady=[0,10])
-            self.entry_url.grid(row=2,column=1, sticky="we", pady=[0,10])
-            self.entry_key.grid(row=3,column=1, sticky="we", pady=[0,10])
-            self.boton_ing.destroy()
-            self.entry_admin.grid(row=4, column=0, sticky="nsew", pady=[0, 10])
+        if self.entry_user.get() == 'adm1n1str4d0r' and self.entry_pass.get() == '123456':
+            self.etq_url.grid(row=2, column=0, sticky="nsew", pady=[0,10], padx=5)
+            self.entry_key.grid(row=3,column=0, sticky="nsew", pady=[0,10], padx=5)
+            self.entry_url.grid(row=2,column=1, sticky="we", pady=[0,10], padx=5)
+            self.etq_key.grid(row=3, column=1, sticky="we", pady=[0,10], padx=5)
+            self.boton_ing.configure(text="Acceder", command=self.ing_admin)
+            #self.entry_admin.grid(row=4, column=0, sticky="nsew", pady=[0, 10], padx=5)
         else:
             messagebox.showinfo(title="Error de ingreso", message="El usuario ingresado no coincide con el Admin registrado")
             self.destroy()
@@ -829,22 +857,27 @@ class Admin(Tk):
         print(file)
         if file !='':
             self.key = file
+            self.dir_key.set(file.lstrip('/'))
+            print(file.lstrip('/'))
     
     def ing_admin(self):
+        global acceso
         self.dir = self.entry_url.get()
-        self.key_generator(key=str(self.key), path=self.dir)
+        self.key_generator()
         try:
             db_init()
             messagebox.showinfo(title="Vinculacion con BD", message="Se ha establecido un vinculo con la base de datos seleccionada")
+            acceso = True
         except Exception:
+            acceso = False
             messagebox.showerror(title="Error en vinculacion con BD", message="No se ha podido establecer una correcta vinculacion con la base de datos utilizada")
         self.destroy()
         Login()
     
-    def key_generator(self, key, path):
+    def key_generator(self):
         datos = {
-            "key" : key,
-            "path" : path
+            "key" : str(self.key),
+            "path" : self.dir
         } 
         with open('./resources/key.json', "w") as file:
             json.dump(datos, file, indent=4)
@@ -946,8 +979,6 @@ class confg_graph(Tk):
         self.rowconfigure(5, weight=1)
         self.rowconfigure(6, weight=1)
         self.rowconfigure(7, weight=1)
-        self.rowconfigure(8, weight=1)
-        self.rowconfigure(9, weight=1)
 
         # CONFIGURACION DE ESTILOS DE WIDGETS
         button_style2 = ttk.Style()
@@ -1027,30 +1058,11 @@ class confg_graph(Tk):
         self.entry_ymax_val = tk.DoubleVar(self.yframe, value=ylim[1])
         self.entry_ymax = Entry(self.yframe, font=("Arial", 12), textvariable=self.entry_ymax_val, width=4)
         self.entry_ymax.grid(row=0, column=3, sticky="nsew")
-        
-        # CONFIGURACION DE LINEA
-        self.etq_estilo = Label(self, text="Estilo de linea", fg= "black", font=("Arial", 14))
-        self.etq_estilo.grid(row=7, column=0, sticky="nsew", columnspan=2, pady=[2,5])
-
-        self.font_color = tk.Frame(self)
-        self.font_color.grid(row=8, column=0, sticky="nsew", pady=[0,5], columnspan=2)
-        self.font_color.rowconfigure(0, weight=1)
-        self.font_color.columnconfigure(0, weight=1)
-        self.font_color.columnconfigure(1, weight=1)
-        self.font_color.columnconfigure(2, weight=1)
-
-        self.etq_color = Label(self.font_color, text="Color de trazo", fg= "black", font=("Arial", 12), width=5)
-        self.etq_color.grid(row=0, column=0, sticky="nsew")
-
-        self.lab_color = Label(self.font_color, fg= "black", background=line_color1, relief="raised", height=1)
-        self.lab_color.grid(row=0, column=1, sticky="nsew", padx=2, pady=5)
-
-        self.button_color = ttk.Button(self.font_color, text="Cambiar", style="button_style2.TButton", command=self.pick_color, width=2)
-        self.button_color.grid(row=0, column=2, sticky="nsew")
+    
 
         # BOTONES DE ACEPTAR O CANCELAR CONFIGURACION
         self.font_boton = tk.Frame(self)
-        self.font_boton.grid(row=9, column=0, columnspan=2, sticky="nsew", pady=[0,5])
+        self.font_boton.grid(row=7, column=0, columnspan=2, sticky="nsew", pady=[0,5])
         self.font_boton.rowconfigure(0, weight=1)
         self.font_boton.columnconfigure(0, weight=1)
         self.font_boton.columnconfigure(1, weight=1)
@@ -1068,13 +1080,6 @@ class confg_graph(Tk):
         self.focus()
         self.grab_set()
 
-    def pick_color(self):
-        global line_color
-        self.color = colorchooser.askcolor()[1]  # Ask the user to choose a color and get the hex code
-        if self.color:
-            self.lab_color.config(background=self.color)  # Set the foreground color of the Label
-            line_color = self.color
-
     def restore(self):
         self.chkbox_value.set(True)
         self.entry_lineas.set("Ambos")
@@ -1083,7 +1088,6 @@ class confg_graph(Tk):
         self.entry_xmax_val.set(20.0)
         self.entry_ymin_val.set(-20.0)
         self.entry_ymax_val.set(20.0)
-        self.lab_color.config(background="black")
 
     def confirm(self):
         global grid_draw, lineas, ejes, xlim, ylim, line_color

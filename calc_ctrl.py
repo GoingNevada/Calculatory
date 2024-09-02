@@ -118,8 +118,8 @@ def entry(entr, tecla):    # ANALIZADOR DE SINTAXIS
 def evaluate(entrada):
     global digitos,angulo,formato
     if entrada:
-        expr = sp.sympify(entrada)
         try:
+            expr = sp.sympify(entrada)
             res = expr.evalf(subs={'e':'E','\u03C0':'pi'})
             if type(res) == sp.core.numbers.ComplexInfinity:
                 raise ZeroDivisionError
@@ -131,10 +131,10 @@ def evaluate(entrada):
             messagebox.showerror(message=f"No es posible realizar una division por cero", title="Error en division")
             return 'Indefinido'
         except ValueError as ex:
-            messagebox.showerror(message=f"Ecuación ingresada no valida, {type(ex)}", title="Error de ingreso")
+            messagebox.showerror(message=f"Ecuación ingresada no valida, revise la escritura de la ecuacion", title="Error de ingreso")
             return 'SyntaxError'
         except Exception as ex:
-            messagebox.showerror(message=f"Entrada ingresada no valida, {type(ex)}", title="Error de ingreso")
+            messagebox.showerror(message=f"Entrada ingresada no valida", title="Error de ingreso")
             return ''
     else:
         messagebox.showerror(message="Por favor ingrese una ecuación valida", title="Error en ecuación")
@@ -142,19 +142,25 @@ def evaluate(entrada):
         
 
 def graph(entrada):
-    x = sp.symbols('x')
-    expr = sp.sympify(entrada)
     x_values = np.linspace(-50, 50, 1000)
     y_values = []
     try:
+        x = sp.symbols('x')
+        expr = sp.sympify(entrada)
         for val in x_values:
             y = expr.subs(x, val).evalf(subs={'e':'E','\u03C0':'pi'})
             if type(y) != sp.core.numbers.Float:
-                y_values.append(None)
+                if type(y) == sp.core.numbers.ComplexInfinity:
+                    raise ZeroDivisionError
+                else:
+                    y_values.append(None)
             else:
                 y_values.append(y)
         y_values = np.array(y_values)
         return y_values
+    except ZeroDivisionError:
+            messagebox.showerror(message=f"No es posible realizar una division por cero", title="Error en division")
+            return 'Indefinido'
     except Exception as ex:
-        messagebox.showerror(message=f"Ecuación ingresada no valida, {type(ex)}", title="Error de ingreso")
+        messagebox.showerror(message=f"Ecuación ingresada no valida, revise la escritura de la ecuacion", title="Error de ingreso")
         return 'SyntaxError'
