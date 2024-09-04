@@ -145,10 +145,13 @@ def graph(entrada):
     x_values = np.linspace(-50, 50, 1000)
     y_values = []
     try:
+        if 'x' in entrada and 'y' in entrada:
+            raise ValueError
         x = sp.symbols('x')
+        z = sp.symbols('y')
         expr = sp.sympify(entrada)
         for val in x_values:
-            y = expr.subs(x, val).evalf(subs={'e':'E','\u03C0':'pi'})
+            y = expr.subs(x if 'x' in entrada else z, val).evalf(subs={'e':'E','\u03C0':'pi'})
             if type(y) != sp.core.numbers.Float:
                 if type(y) == sp.core.numbers.ComplexInfinity:
                     raise ZeroDivisionError
@@ -161,6 +164,9 @@ def graph(entrada):
     except ZeroDivisionError:
             messagebox.showerror(message=f"No es posible realizar una division por cero", title="Error en division")
             return 'Indefinido'
+    except ValueError:
+            messagebox.showerror(message=f"No es posible graficar la funcion", title="Error en graficacion")
+            return ''
     except Exception as ex:
         messagebox.showerror(message=f"Ecuación ingresada no valida, revise la escritura de la ecuacion", title="Error de ingreso")
         return 'SyntaxError'

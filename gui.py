@@ -375,7 +375,7 @@ class Calculadora(tk.Tk):
 
     def result(self):
         ecu = self.entrada_ecuacion.get().strip() # OBTENEMOS EL STRING EN ENTRADA Y ELIMINAMOS LOS ESPACIOS EN BLANCO
-        if 'x' not in ecu:
+        if 'x' not in ecu and 'y' not in ecu:
             self.res = evaluate(ecu)
             self.ax.clear()
             self.graficacion.grid_remove()
