@@ -17,6 +17,7 @@ Calculatory es una aplicación de escritorio, diseñada para realizar calculos m
 
 ## Documentation
 
-[Documentation](resources/Manual_tenico_Calculatory.pdf)
+[Documentation](resources/Manual_tecnico_Calculatory.pdf)
+
 
 
